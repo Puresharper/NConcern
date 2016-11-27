@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{63C3F47C-360E-4586-92DC-A1390C082408}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>NConcern</RootNamespace>
+    <AssemblyName>NConcern</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Advice.cs" />
+    <Compile Include="After.cs" />
+    <Compile Include="After.Returning.cs" />
+    <Compile Include="After.Throwing.cs" />
+    <Compile Include="Arround.cs" />
+    <Compile Include="Aspect.cs" />
+    <Compile Include="Before.cs" />
+    <Compile Include="Junction.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="System\Collections\Generic\Collection.cs" />
+    <Compile Include="System\Collections\Generic\Enumerable.cs" />
+    <Compile Include="System\Collections\Generic\Enumerable.Enumerator.cs" />
+    <Compile Include="System\Linq\Expressions\Parameter.cs" />
+    <Compile Include="System\Linq\Expressions\__LambdaExpression.cs" />
+    <Compile Include="System\Reflection\Argument.cs" />
+    <Compile Include="System\Reflection\Emit\__ILGenerator.cs" />
+    <Compile Include="System\Reflection\Emit\__ModuleBuilder.cs" />
+    <Compile Include="System\Reflection\Metadata.cs" />
+    <Compile Include="System\Reflection\Signature.cs" />
+    <Compile Include="System\Reflection\__AssemblyName.cs" />
+    <Compile Include="System\Reflection\__MethodInfo.cs" />
+    <Compile Include="System\Reflection\__ParameterInfo.cs" />
+    <Compile Include="System\Reflection\__Type.cs" />
+    <Compile Include="System\Resource.cs" />
+    <Compile Include="System\Runtime\Closure.cs" />
+    <Compile Include="System\__AppDomain.cs" />
+    <Compile Include="Weaver.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
