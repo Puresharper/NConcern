@@ -11,12 +11,12 @@ namespace NConcern
     /// <summary>
     /// Run after method execution.
     /// </summary>
-    public partial class After : Advice
+    public sealed partial class After : Advice
     {
         static internal readonly ModuleBuilder m_Module = AppDomain.CurrentDomain.DefineDynamicModule();
 
         private readonly Action<ILGenerator> m_Generation;
-        private readonly Func<IEnumerable<ParameterExpression>, Expression> m_Expression;
+        private readonly Func<ParameterExpression, IEnumerable<ParameterExpression>, Expression> m_Expression;
         private readonly FieldInfo m_Delegation;
         private readonly FieldInfo m_Reflection;
 
@@ -34,7 +34,7 @@ namespace NConcern
         /// Define expression representing code to run after method execution.
         /// </summary>
         /// <param name="advise">Delegate to provide expression to run after method execution.</param>
-        public After(Func<IEnumerable<ParameterExpression>, Expression> advise)
+        public After(Func<ParameterExpression, IEnumerable<ParameterExpression>, Expression> advise)
             : base(Advice.Styles.Expression)
         {
             this.m_Expression = advise;
@@ -44,7 +44,7 @@ namespace NConcern
         /// Define code to run after method execution.
         /// </summary>
         /// <param name="advise">Delegate to run after method execution.</param>
-        public After(Action advise)
+        public After(Action<Exception> advise)
             : base(Advice.Styles.Delegation)
         {
             this.m_Delegation = After.m_Module.DefineField(Metadata<Action>.Type.Name, advise);
@@ -54,24 +54,24 @@ namespace NConcern
         /// Define code to run after method execution.
         /// </summary>
         /// <param name="advise">Delegate to run after method execution.</param>
-        public After(Action<object, object[]> advise)
+        public After(Action<object, object[], object, Exception> advise)
             : base(Advice.Styles.Reflection)
         {
             this.m_Reflection = After.m_Module.DefineField(Metadata<Action>.Type.Name, advise);
         }
 
-        override internal Junction Override(Junction junction)
+        override internal Aspect.Activity<T> Override<T>(Aspect.Activity<T> activity)
         {
             switch (this.Style)
             {
                 case Advice.Styles.Generation:
-                    var _type = junction.Type;
-                    var _method = new DynamicMethod(string.Empty, _type, junction.Signature, junction.Method.DeclaringType, true);
+                    var _type = activity.Type;
+                    var _method = new DynamicMethod(string.Empty, _type, activity.Signature, activity.Method.DeclaringType, true);
                     var _body = _method.GetILGenerator();
                     if (_type == Metadata.Void)
                     {
                         _body.BeginExceptionBlock();
-                        _body.Emit(junction);
+                        _body.Emit(activity);
                         _body.BeginFinallyBlock();
                         _body.Emit(this.m_Generation);
                         _body.EndExceptionBlock();
@@ -80,7 +80,7 @@ namespace NConcern
                     {
                         _body.DeclareLocal(_type);
                         _body.BeginExceptionBlock();
-                        _body.Emit(junction);
+                        _body.Emit(activity);
                         _body.Emit(OpCodes.Stloc_0);
                         _body.BeginFinallyBlock();
                         _body.Emit(this.m_Generation);
@@ -89,20 +89,20 @@ namespace NConcern
                     }
                     _body.Emit(OpCodes.Ret);
                     _method.Prepare();
-                    return new Junction(junction, _method.Pointer());
+                    return activity.Override(_method.Pointer());
                 case Advice.Styles.Expression:
-                    var _signature = junction.Signature;
+                    var _signature = activity.Signature;
                     var _parameters = new Collection<ParameterExpression>(_signature.Select(_Type => Expression.Parameter(_Type)).ToArray());
-                    var _advice = this.m_Expression(_parameters);
-                    if (_advice == null) { return junction; }
+                    var _advice = _signature.Instance == null ? this.m_Expression(null, _parameters) : this.m_Expression(_parameters[0], _parameters.Skip(1));
+                    if (_advice == null) { return activity; }
                     if (_advice.Type != Metadata.Void) { throw new NotSupportedException(); }
-                    _type = junction.Type;
-                    _method = new DynamicMethod(string.Empty, _type, _signature, junction.Method.DeclaringType, true);
+                    _type = activity.Type;
+                    _method = new DynamicMethod(string.Empty, _type, _signature, activity.Method.DeclaringType, true);
                     _body = _method.GetILGenerator();
                     if (_type == Metadata.Void)
                     {
                         _body.BeginExceptionBlock();
-                        _body.Emit(junction);
+                        _body.Emit(activity);
                         _body.BeginFinallyBlock();
                         _body.Emit(_signature, false);
                         _body.Emit(Expression.Lambda(_advice, _parameters).CompileToMethod().Pointer(), Metadata.Void, _signature);
@@ -112,7 +112,7 @@ namespace NConcern
                     {
                         _body.DeclareLocal(_type);
                         _body.BeginExceptionBlock();
-                        _body.Emit(junction);
+                        _body.Emit(activity);
                         _body.Emit(OpCodes.Stloc_0);
                         _body.BeginFinallyBlock();
                         _body.Emit(_signature, false);
@@ -122,113 +122,125 @@ namespace NConcern
                     }
                     _body.Emit(OpCodes.Ret);
                     _method.Prepare();
-                    return new Junction(junction, _method.Pointer());
+                    return activity.Override(_method.Pointer());
                 case Advice.Styles.Delegation:
-                    _type = junction.Type;
-                    _method = new DynamicMethod(string.Empty, _type, junction.Signature, junction.Method.DeclaringType, true);
+                    _type = activity.Type;
+                    _method = new DynamicMethod(string.Empty, _type, activity.Signature, activity.Method.DeclaringType, true);
                     _body = _method.GetILGenerator();
+                    _body.DeclareLocal(Metadata<Exception>.Type);
+                    _body.DeclareLocal(Metadata<bool>.Type);
+                    var _complete = _body.DefineLabel();
                     if (_type == Metadata.Void)
                     {
                         _body.BeginExceptionBlock();
-                        _body.Emit(junction);
-                        _body.BeginFinallyBlock();
+                        _body.Emit(activity);
+                        _body.Emit(OpCodes.Ldc_I4_1);
+                        _body.Emit(OpCodes.Stloc_1);
                         _body.Emit(OpCodes.Ldsfld, this.m_Delegation);
-                        _body.Emit(OpCodes.Call, Metadata<Action>.Method(_Action => _Action.Invoke()));
+                        _body.Emit(OpCodes.Ldnull);
+                        _body.Emit(OpCodes.Call, Metadata<Action<Exception>>.Method(_Action => _Action.Invoke(Argument<Exception>.Value)));
+                        _body.BeginCatchBlock(Metadata<Exception>.Type);
+                        _body.Emit(OpCodes.Stloc_0);
+                        _body.Emit(OpCodes.Ldloc_1);
+                        _body.Emit(OpCodes.Brtrue, _complete);
+                        _body.Emit(OpCodes.Ldsfld, this.m_Delegation);
+                        _body.Emit(OpCodes.Ldloc_0);
+                        _body.Emit(OpCodes.Call, Metadata<Action<Exception>>.Method(_Action => _Action.Invoke(Argument<Exception>.Value)));
+                        _body.MarkLabel(_complete);
+                        _body.Emit(OpCodes.Rethrow);
                         _body.EndExceptionBlock();
                     }
                     else
                     {
                         _body.DeclareLocal(_type);
                         _body.BeginExceptionBlock();
-                        _body.Emit(junction);
-                        _body.Emit(OpCodes.Stloc_0);
-                        _body.BeginFinallyBlock();
+                        _body.Emit(activity);
+                        _body.Emit(OpCodes.Stloc_2);
+                        _body.Emit(OpCodes.Ldc_I4_1);
+                        _body.Emit(OpCodes.Stloc_1);
                         _body.Emit(OpCodes.Ldsfld, this.m_Delegation);
-                        _body.Emit(OpCodes.Call, Metadata<Action>.Method(_Action => _Action.Invoke()));
-                        _body.EndExceptionBlock();
+                        _body.Emit(OpCodes.Ldnull);
+                        _body.Emit(OpCodes.Call, Metadata<Action<Exception>>.Method(_Action => _Action.Invoke(Argument<Exception>.Value)));
+                        _body.BeginCatchBlock(Metadata<Exception>.Type);
+                        _body.Emit(OpCodes.Stloc_0);
+                        _body.Emit(OpCodes.Ldloc_1);
+                        _body.Emit(OpCodes.Brtrue, _complete);
+                        _body.Emit(OpCodes.Ldsfld, this.m_Delegation);
                         _body.Emit(OpCodes.Ldloc_0);
+                        _body.Emit(OpCodes.Call, Metadata<Action<Exception>>.Method(_Action => _Action.Invoke(Argument<Exception>.Value)));
+                        _body.MarkLabel(_complete);
+                        _body.Emit(OpCodes.Rethrow);
+                        _body.EndExceptionBlock();
+                        _body.Emit(OpCodes.Ldloc_2);
                     }
                     _body.Emit(OpCodes.Ret);
                     _method.Prepare();
-                    return new Junction(junction, _method.Pointer());
+                    return activity.Override(_method.Pointer());
                 case Advice.Styles.Reflection:
-                    _type = junction.Type;
-                    _method = new DynamicMethod(string.Empty, _type, junction.Signature, junction.Method.DeclaringType, true);
+                    _type = activity.Type;
+                    _method = new DynamicMethod(string.Empty, _type, activity.Signature, activity.Method.DeclaringType, true);
                     _body = _method.GetILGenerator();
+                    _body.DeclareLocal(Metadata<Exception>.Type);
+                    _body.DeclareLocal(Metadata<bool>.Type);
+                    _complete = _body.DefineLabel();
                     if (_type == Metadata.Void)
                     {
                         _body.BeginExceptionBlock();
-                        _body.Emit(junction);
-                        _body.BeginFinallyBlock();
+                        _body.Emit(activity);
+                        _body.Emit(OpCodes.Ldc_I4_1);
+                        _body.Emit(OpCodes.Stloc_1);
                         _body.Emit(OpCodes.Ldsfld, this.m_Reflection);
-                        _body.Emit(junction.Signature, true);
-                        _body.Emit(OpCodes.Call, Metadata<Action<object, object[]>>.Method(_Action => _Action.Invoke(Argument<object>.Value, Argument<object[]>.Value)));
+                        _body.Emit(activity.Signature, true);
+                        _body.Emit(OpCodes.Ldnull);
+                        _body.Emit(OpCodes.Ldnull);
+                        _body.Emit(OpCodes.Call, Metadata<Action<object, object[], object, Exception>>.Method(_Action => _Action.Invoke(Argument<object>.Value, Argument<object[]>.Value, Argument<object>.Value, Argument<Exception>.Value)));
+                        _body.BeginCatchBlock(Metadata<Exception>.Type);
+                        _body.Emit(OpCodes.Stloc_0);
+                        _body.Emit(OpCodes.Ldloc_1);
+                        _body.Emit(OpCodes.Brtrue, _complete);
+                        _body.Emit(OpCodes.Ldsfld, this.m_Reflection);
+                        _body.Emit(activity.Signature, true);
+                        _body.Emit(OpCodes.Ldnull);
+                        _body.Emit(OpCodes.Ldloc_0);
+                        _body.Emit(OpCodes.Call, Metadata<Action<object, object[], object, Exception>>.Method(_Action => _Action.Invoke(Argument<object>.Value, Argument<object[]>.Value, Argument<object>.Value, Argument<Exception>.Value)));
+                        _body.MarkLabel(_complete);
+                        _body.Emit(OpCodes.Rethrow);
                         _body.EndExceptionBlock();
                     }
                     else
                     {
                         _body.DeclareLocal(_type);
                         _body.BeginExceptionBlock();
-                        _body.Emit(junction);
-                        _body.Emit(OpCodes.Stloc_0);
-                        _body.BeginFinallyBlock();
+                        _body.Emit(activity);
+                        _body.Emit(OpCodes.Stloc_2);
+                        _body.Emit(OpCodes.Ldc_I4_1);
+                        _body.Emit(OpCodes.Stloc_1);
                         _body.Emit(OpCodes.Ldsfld, this.m_Reflection);
-                        _body.Emit(junction.Signature, true);
-                        _body.Emit(OpCodes.Call, Metadata<Action<object, object[]>>.Method(_Action => _Action.Invoke(Argument<object>.Value, Argument<object[]>.Value)));
+                        _body.Emit(activity.Signature, true);
+                        _body.Emit(OpCodes.Ldloc_2);
+                        if (_type.IsValueType) { _body.Emit(OpCodes.Box, _type); }
+                        else { _body.Emit(OpCodes.Castclass, Metadata<object>.Type); }
+                        _body.Emit(OpCodes.Ldnull);
+                        _body.Emit(OpCodes.Call, Metadata<Action<object, object[], object, Exception>>.Method(_Action => _Action.Invoke(Argument<object>.Value, Argument<object[]>.Value, Argument<object>.Value, Argument<Exception>.Value)));
+                        _body.BeginCatchBlock(Metadata<Exception>.Type);
+                        _body.Emit(OpCodes.Stloc_0);
+                        _body.Emit(OpCodes.Ldloc_1);
+                        _body.Emit(OpCodes.Brtrue, _complete);
+                        _body.Emit(OpCodes.Ldsfld, this.m_Reflection);
+                        _body.Emit(activity.Signature, true);
+                        _body.Emit(OpCodes.Ldnull);
+                        _body.Emit(OpCodes.Stloc_0);
+                        _body.Emit(OpCodes.Call, Metadata<Action<object, object[], object, Exception>>.Method(_Action => _Action.Invoke(Argument<object>.Value, Argument<object[]>.Value, Argument<object>.Value, Argument<Exception>.Value)));
+                        _body.MarkLabel(_complete);
+                        _body.Emit(OpCodes.Rethrow);
                         _body.EndExceptionBlock();
-                        _body.Emit(OpCodes.Ldloc_0);
+                        _body.Emit(OpCodes.Ldloc_2);
                     }
                     _body.Emit(OpCodes.Ret);
                     _method.Prepare();
-                    return new Junction(junction, _method.Pointer());
+                    return activity.Override(_method.Pointer());
                 default: throw new NotSupportedException();
             }
-        }
-    }
-
-    public partial class After<T> : After
-        where T : Attribute
-    {
-        /// <summary>
-        /// Emit code to run after method execution.
-        /// </summary>
-        /// <param name="advise">Delegate to emit code to run after method execution.</param>
-        public After(Action<ILGenerator> advise)
-            : base(advise)
-        {
-        }
-
-        /// <summary>
-        /// Define expression representing code to run after method execution.
-        /// </summary>
-        /// <param name="advise">Delegate to provide expression to run after method execution.</param>
-        public After(Func<IEnumerable<ParameterExpression>, Expression> advise)
-            : base(advise)
-        {
-        }
-
-        /// <summary>
-        /// Define code to run after method execution.
-        /// </summary>
-        /// <param name="advise">Delegate to run after method execution.</param>
-        public After(Action advise)
-            : base(advise)
-        {
-        }
-
-        /// <summary>
-        /// Define code to run after method execution.
-        /// </summary>
-        /// <param name="advise">Delegate to run after method execution.</param>
-        public After(Action<object, object[]> advise)
-            : base(advise)
-        {
-        }
-
-        internal override Junction Override(Junction junction)
-        {
-            if (junction.Method.Attributed<T>()) { return junction; }
-            return base.Override(junction);
         }
     }
 }

@@ -8,15 +8,15 @@ using System.Reflection.Emit;
 
 namespace NConcern
 {
-    public partial class After
+    public sealed partial class After
     {
         /// <summary>
         /// Run after method execution when it failed.
         /// </summary>
-        public class Throwing : Advice
+        public sealed class Throwing : Advice
         {
             private readonly Action<ILGenerator> m_Generation;
-            private readonly Func<IEnumerable<ParameterExpression>, Expression> m_Expression;
+            private readonly Func<ParameterExpression, IEnumerable<ParameterExpression>, Expression> m_Expression;
             private readonly FieldInfo m_Delegation;
             private readonly FieldInfo m_Reflection;
 
@@ -34,7 +34,7 @@ namespace NConcern
             /// Define expression representing code to run after method execution.
             /// </summary>
             /// <param name="advise">Delegate to provide expression to run after method execution.</param>
-            public Throwing(Func<IEnumerable<ParameterExpression>, Expression> advise)
+            public Throwing(Func<ParameterExpression, IEnumerable<ParameterExpression>, Expression> advise)
                 : base(Advice.Styles.Expression)
             {
                 this.m_Expression = advise;
@@ -60,17 +60,17 @@ namespace NConcern
                 this.m_Reflection = After.m_Module.DefineField(Metadata<Action>.Type.Name, advise);
             }
 
-            override internal Junction Override(Junction junction)
+            override internal Aspect.Activity<T> Override<T>(Aspect.Activity<T> activity)
             {
                 switch (this.Style)
                 {
                     case Advice.Styles.Generation:
-                        var _type = junction.Type;
-                        var _method = new DynamicMethod(string.Empty, _type, junction.Signature, junction.Method.DeclaringType, true);
+                        var _type = activity.Type;
+                        var _method = new DynamicMethod(string.Empty, _type, activity.Signature, activity.Method.DeclaringType, true);
                         var _body = _method.GetILGenerator();
                         _body.DeclareLocal(Metadata<Exception>.Type);
                         _body.BeginExceptionBlock();
-                        _body.Emit(junction);
+                        _body.Emit(activity);
                         _body.BeginCatchBlock(Metadata<Exception>.Type);
                         _body.Emit(OpCodes.Stloc_0);
                         _body.Emit(this.m_Generation);
@@ -78,19 +78,19 @@ namespace NConcern
                         _body.EndExceptionBlock();
                         _body.Emit(OpCodes.Ret);
                         _method.Prepare();
-                        return new Junction(junction, _method.Pointer());
+                        return activity.Override(_method.Pointer());
                     case Advice.Styles.Expression:
-                        var _signature = junction.Signature;
+                        var _signature = activity.Signature;
                         var _parameters = new Collection<ParameterExpression>(_signature.Select(_Type => Expression.Parameter(_Type)).ToArray());
-                        var _advice = this.m_Expression(_parameters);
-                        if (_advice == null) { return junction; }
+                        var _advice = _signature.Instance == null ? this.m_Expression(null, _parameters) : this.m_Expression(_parameters[0], _parameters.Skip(1));
+                        if (_advice == null) { return activity; }
                         if (_advice.Type != Metadata.Void) { throw new NotSupportedException(); }
-                        _type = junction.Type;
-                        _method = new DynamicMethod(string.Empty, _type, _signature, junction.Method.DeclaringType, true);
+                        _type = activity.Type;
+                        _method = new DynamicMethod(string.Empty, _type, _signature, activity.Method.DeclaringType, true);
                         _body = _method.GetILGenerator();
                         _body.DeclareLocal(Metadata<Exception>.Type);
                         _body.BeginExceptionBlock();
-                        _body.Emit(junction);
+                        _body.Emit(activity);
                         _body.BeginCatchBlock(Metadata<Exception>.Type);
                         _body.Emit(OpCodes.Stloc_0);
                         _body.Emit(_signature, false);
@@ -99,14 +99,14 @@ namespace NConcern
                         _body.EndExceptionBlock();
                         _body.Emit(OpCodes.Ret);
                         _method.Prepare();
-                        return new Junction(junction, _method.Pointer());
+                        return activity.Override(_method.Pointer());
                     case Advice.Styles.Delegation:
-                        _type = junction.Type;
-                        _method = new DynamicMethod(string.Empty, _type, junction.Signature, junction.Method.DeclaringType, true);
+                        _type = activity.Type;
+                        _method = new DynamicMethod(string.Empty, _type, activity.Signature, activity.Method.DeclaringType, true);
                         _body = _method.GetILGenerator();
                         _body.DeclareLocal(Metadata<Exception>.Type);
                         _body.BeginExceptionBlock();
-                        _body.Emit(junction);
+                        _body.Emit(activity);
                         _body.BeginCatchBlock(Metadata<Exception>.Type);
                         _body.Emit(OpCodes.Stloc_0);
                         _body.Emit(OpCodes.Ldsfld, this.m_Delegation);
@@ -115,15 +115,15 @@ namespace NConcern
                         _body.EndExceptionBlock();
                         _body.Emit(OpCodes.Ret);
                         _method.Prepare();
-                        return new Junction(junction, _method.Pointer());
+                        return activity.Override(_method.Pointer());
                     case Advice.Styles.Reflection:
-                        _type = junction.Type;
-                        _signature = junction.Signature;
-                        _method = new DynamicMethod(string.Empty, _type, _signature, junction.Method.DeclaringType, true);
+                        _type = activity.Type;
+                        _signature = activity.Signature;
+                        _method = new DynamicMethod(string.Empty, _type, _signature, activity.Method.DeclaringType, true);
                         _body = _method.GetILGenerator();
                         _body.DeclareLocal(Metadata<Exception>.Type);
                         _body.BeginExceptionBlock();
-                        _body.Emit(junction);
+                        _body.Emit(activity);
                         _body.BeginCatchBlock(Metadata<Exception>.Type);
                         _body.Emit(OpCodes.Stloc_0);
                         _body.Emit(OpCodes.Ldsfld, this.m_Reflection);
@@ -134,57 +134,9 @@ namespace NConcern
                         _body.EndExceptionBlock();
                         _body.Emit(OpCodes.Ret);
                         _method.Prepare();
-                        return new Junction(junction, _method.Pointer());
+                        return activity.Override(_method.Pointer());
                     default: throw new NotSupportedException();
                 }
-            }
-        }
-    }
-
-    public partial class After<T>
-    {
-        new public partial class Throwing : After.Throwing
-        {
-            /// <summary>
-            /// Emit code to run after method execution.
-            /// </summary>
-            /// <param name="advise">Delegate to emit code to run after method execution.</param>
-            public Throwing(Action<ILGenerator> advise)
-                : base(advise)
-            {
-            }
-
-            /// <summary>
-            /// Define expression representing code to run after method execution.
-            /// </summary>
-            /// <param name="advise">Delegate to provide expression to run after method execution.</param>
-            public Throwing(Func<IEnumerable<ParameterExpression>, Expression> advise)
-                : base(advise)
-            {
-            }
-
-            /// <summary>
-            /// Define code to run after method execution.
-            /// </summary>
-            /// <param name="advise">Delegate to run after method execution.</param>
-            public Throwing(Action advise)
-                : base(advise)
-            {
-            }
-
-            /// <summary>
-            /// Define code to run after method execution.
-            /// </summary>
-            /// <param name="advise">Delegate to run after method execution.</param>
-            public Throwing(Action<object, object[], Exception> advise)
-                : base(advise)
-            {
-            }
-
-            internal override Junction Override(Junction junction)
-            {
-                if (junction.Method.Attributed<T>()) { return junction; }
-                return base.Override(junction);
             }
         }
     }

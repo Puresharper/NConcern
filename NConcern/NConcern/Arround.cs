@@ -12,12 +12,12 @@ namespace NConcern
     /// <summary>
     /// Run arround method execution.
     /// </summary>
-    public partial class Arround : Advice
+    public sealed partial class Arround : Advice
     {
         static internal readonly ModuleBuilder m_Module = AppDomain.CurrentDomain.DefineDynamicModule();
 
         private readonly Action<ILGenerator, Action<ILGenerator>> m_Generation;
-        private readonly Func<IEnumerable<ParameterExpression>, Expression, Expression> m_Expression;
+        private readonly Func<ParameterExpression, IEnumerable<ParameterExpression>, Expression, Expression> m_Expression;
         private readonly FieldInfo m_Delegation;
         private readonly FieldInfo m_Reflection;
 
@@ -27,7 +27,7 @@ namespace NConcern
             this.m_Generation = advise;
         }
 
-        public Arround(Func<IEnumerable<ParameterExpression>, Expression, Expression> advise)
+        public Arround(Func<ParameterExpression, IEnumerable<ParameterExpression>, Expression, Expression> advise)
             : base(Advice.Styles.Expression)
         {
             this.m_Expression = advise;
@@ -45,41 +45,41 @@ namespace NConcern
             this.m_Reflection = Arround.m_Module.DefineField(Metadata<Action>.Type.Name, advise);
         }
 
-        override internal Junction Override(Junction junction)
+        override internal Aspect.Activity<T> Override<T>(Aspect.Activity<T> activity)
         {
             switch (this.Style)
             {
                 case Advice.Styles.Generation:
-                    var _type = junction.Type;
-                    var _method = new DynamicMethod(string.Empty, _type, junction.Signature, junction.Method.DeclaringType, true);
+                    var _type = activity.Type;
+                    var _method = new DynamicMethod(string.Empty, _type, activity.Signature, activity.Method.DeclaringType, true);
                     var _body = _method.GetILGenerator();
-                    this.m_Generation(_body, _Body => _Body.Emit(junction));    
+                    this.m_Generation(_body, _Body => _Body.Emit(activity));    
                     _body.Emit(OpCodes.Ret);
                     _method.Prepare();
-                    return new Junction(junction, _method.Pointer());
+                    return activity.Override(_method.Pointer());
                 case Advice.Styles.Expression:
-                    var _signature = junction.Signature;
+                    var _signature = activity.Signature;
                     var _parameters = new Collection<ParameterExpression>(_signature.Select(_Type => Expression.Parameter(_Type)).ToArray());
-                    _type = junction.Type;
-                    _method = new DynamicMethod(string.Empty, _type, _signature, junction.Method.DeclaringType, true);
+                    _type = activity.Type;
+                    _method = new DynamicMethod(string.Empty, _type, _signature, activity.Method.DeclaringType, true);
                     _body = _method.GetILGenerator();
-                    _body.Emit(junction);
+                    _body.Emit(activity);
                     _body.Emit(OpCodes.Ret);
-                    var _advice = this.m_Expression(_parameters, Expression.Call(_method, _parameters));
-                    if (_advice == null) { return junction; }
+                    var _advice = _signature.Instance == null ? this.m_Expression(null, _parameters, Expression.Call(_method, _parameters)) : this.m_Expression(_parameters[0], _parameters.Skip(1), Expression.Call(_method, _parameters));
+                    if (_advice == null) { return activity; }
                     if (_advice.Type != Metadata.Void) { throw new NotSupportedException(); }
-                    _method = new DynamicMethod(string.Empty, _type, _signature, junction.Method.DeclaringType, true);
+                    _method = new DynamicMethod(string.Empty, _type, _signature, activity.Method.DeclaringType, true);
                     _body = _method.GetILGenerator();
                     _body.Emit(_signature, false);
                     _body.Emit(Expression.Lambda(_advice, _parameters).CompileToMethod().Pointer(), Metadata.Void, _signature);
                     _body.Emit(OpCodes.Ret);
                     _method.Prepare();
-                    return new Junction(junction, _method.Pointer());
+                    return activity.Override(_method.Pointer());
                 case Advice.Styles.Delegation:
-                    _type = junction.Type;
-                    _signature = junction.Signature;
-                    var _operation = new Closure.Operation(junction.Pointer, _signature, junction.Method.ReturnType);
-                    _method = new DynamicMethod(string.Empty, _type, _signature, junction.Method.DeclaringType, true);
+                    _type = activity.Type;
+                    _signature = activity.Signature;
+                    var _operation = new Closure.Operation(activity.Pointer, _signature, activity.Method.ReturnType);
+                    _method = new DynamicMethod(string.Empty, _type, _signature, activity.Method.DeclaringType, true);
                     _body = _method.GetILGenerator();
                     if (_type == Metadata.Void)
                     {
@@ -106,41 +106,11 @@ namespace NConcern
                     }
                     _body.Emit(OpCodes.Ret);
                     _method.Prepare();
-                    return new Junction(junction, _method.Pointer());
+                    return activity.Override(_method.Pointer());
                 case Advice.Styles.Reflection:
                     throw new NotSupportedException();
                 default: throw new NotSupportedException();
             }
-        }
-    }
-
-    public class Arround<T> : Arround
-        where T : Attribute
-    {
-        public Arround(Action<ILGenerator, Action<ILGenerator>> advise)
-            : base(advise)
-        {
-        }
-
-        public Arround(Func<IEnumerable<ParameterExpression>, Expression, Expression> advise)
-            : base(advise)
-        {
-        }
-
-        public Arround(Action<Action> advise)
-            : base(advise)
-        {
-        }
-
-        public Arround(Func<object, object[], Func<object, object[], object>, object> advise)
-            : base(advise)
-        {
-        }
-
-        internal override Junction Override(Junction junction)
-        {
-            if (junction.Method.Attributed<T>()) { return junction; }
-            return base.Override(junction);
         }
     }
 }

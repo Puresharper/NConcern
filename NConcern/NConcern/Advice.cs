@@ -43,8 +43,9 @@ namespace NConcern
         {
             this.Style = style;
         }
-        
-        abstract internal Junction Override(Junction junction);
+
+        abstract internal Aspect.Activity<T> Override<T>(Aspect.Activity<T> activity)
+            where T : class;
 
         [DebuggerHidden]
         [EditorBrowsable(EditorBrowsableState.Never)]

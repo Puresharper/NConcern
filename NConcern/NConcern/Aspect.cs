@@ -49,10 +49,11 @@ namespace NConcern
         /// <summary>
         /// Advise a method for a specific type.
         /// </summary>
-        /// <param name="type">Target type.</param>
+        /// <typeparam name="T">Specific target type.</typeparam>
         /// <param name="method">Method to advise.</param>
         /// <returns>Advice.</returns>
-        abstract protected Advice Advise(Type type, MethodInfo method);
+        abstract protected IEnumerable<Advice> Advise<T>(MethodInfo method)
+            where T : class;
 
         /// <summary>
         /// Attach aspect to a target class.
@@ -70,9 +71,9 @@ namespace NConcern
                     Aspect.Current = this;
                     this.m_Typology.AddLast(Metadata<T>.Type);
                     this.m_Dispose.Add(Metadata<T>.Type, this.Dispose<T>);
-                    foreach (var _method in Weaver<T>.Dictionary.Keys)
+                    foreach (var _method in Topography<T>.Dictionary.Keys)
                     {
-                        Weaver<T>.Dictionary[_method].Add(this);
+                        Topography<T>.Dictionary[_method].Add(this);
                     }
                 }
                 finally { Aspect.Current = _current; }
@@ -83,6 +84,7 @@ namespace NConcern
         /// Detach aspect from target class.
         /// </summary>
         /// <typeparam name="T">Type of target class.</typeparam>
+        [DebuggerHidden]
         public void Dispose<T>()
             where T : class
         {
@@ -91,9 +93,9 @@ namespace NConcern
                 if (this.m_Dispose.Remove(Metadata<T>.Type))
                 {
                     this.m_Typology.Remove(Metadata<T>.Type);
-                    foreach (var _method in Weaver<T>.Dictionary.Keys)
+                    foreach (var _method in Topography<T>.Dictionary.Keys)
                     {
-                        Weaver<T>.Dictionary[_method].Remove(this);
+                        Topography<T>.Dictionary[_method].Remove(this);
                     }
                 }
             }

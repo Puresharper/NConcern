@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 namespace System.Reflection
 {
-    static internal class Metadata
+    static public class Metadata
     {
         static public readonly Type Void = typeof(void);
 
@@ -36,7 +36,7 @@ namespace System.Reflection
         }
     }
 
-    static internal partial class Metadata<T>
+    static public partial class Metadata<T>
     {
         static public readonly Type Type = typeof(T);
 
