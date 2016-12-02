@@ -48,6 +48,7 @@
     <Compile Include="Around.cs" />
     <Compile Include="Aspect.cs" />
     <Compile Include="Aspect.Map.cs" />
+    <Compile Include="Aspect.Weaver.cs" />
     <Compile Include="Before.cs" />
     <Compile Include="Aspect.Activity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

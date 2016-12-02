@@ -54,7 +54,8 @@ namespace NConcern.Example.Application
         static void Main(string[] args)
         {
             var a1 = new Aspect1();
-            a1.Manage<Calculator>();
+            //a1.Manage<Calculator>();
+            a1.Manage(typeof(Calculator));
             var calculator = new Calculator();
             calculator.F();
             Console.WriteLine();
