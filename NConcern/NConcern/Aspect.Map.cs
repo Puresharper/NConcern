@@ -96,7 +96,11 @@ namespace NConcern
                 lock (this.m_Resource)
                 {
                     var _activity = this.Activity;
-                    foreach (var _aspect in this.m_Aspectization) { this.m_Dictionary[_aspect] = _activity.Incorporate(_aspect); }
+                    foreach (var _aspect in this.m_Aspectization)
+                    {
+                        _activity = _activity.Incorporate(_aspect);
+                        this.m_Dictionary[_aspect] = _activity;
+                    }
                     this.m_Setup(_activity.Pointer);
                     this.Method.Prepare();
                 }

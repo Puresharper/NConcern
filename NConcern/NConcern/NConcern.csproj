@@ -45,7 +45,7 @@
     <Compile Include="After.cs" />
     <Compile Include="After.Returning.cs" />
     <Compile Include="After.Throwing.cs" />
-    <Compile Include="Arround.cs" />
+    <Compile Include="Around.cs" />
     <Compile Include="Aspect.cs" />
     <Compile Include="Aspect.Map.cs" />
     <Compile Include="Before.cs" />

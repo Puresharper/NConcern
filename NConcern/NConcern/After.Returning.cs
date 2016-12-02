@@ -65,7 +65,7 @@ namespace NConcern
                 switch (this.Style)
                 {
                     case Advice.Styles.Generation:
-                        var _type = activity.Type;
+                        var _type = activity.Method.ReturnType;
                         var _method = new DynamicMethod(string.Empty, _type, activity.Signature, activity.Method.DeclaringType, true);
                         var _body = _method.GetILGenerator();
                         _body.Emit(activity);
@@ -79,7 +79,7 @@ namespace NConcern
                         var _advice = _signature.Instance == null ? this.m_Expression(null, _parameters) : this.m_Expression(_parameters[0], _parameters.Skip(1));
                         if (_advice == null) { return activity; }
                         if (_advice.Type != Metadata.Void) { throw new NotSupportedException(); }
-                        _type = activity.Type;
+                        _type = activity.Method.ReturnType;
                         _method = new DynamicMethod(string.Empty, _type, _signature, activity.Method.DeclaringType, true);
                         _body = _method.GetILGenerator();
                         _body.Emit(activity);
@@ -89,7 +89,7 @@ namespace NConcern
                         _method.Prepare();
                         return activity.Override(_method.Pointer());
                     case Advice.Styles.Delegation:
-                        _type = activity.Type;
+                        _type = activity.Method.ReturnType;
                         _method = new DynamicMethod(string.Empty, _type, activity.Signature, activity.Method.DeclaringType, true);
                         _body = _method.GetILGenerator();
                         _body.Emit(activity);
@@ -99,7 +99,7 @@ namespace NConcern
                         _method.Prepare();
                         return activity.Override(_method.Pointer());
                     case Advice.Styles.Reflection:
-                        _type = activity.Type;
+                        _type = activity.Method.ReturnType;
                         _signature = activity.Signature;
                         _method = new DynamicMethod(string.Empty, _type, _signature, activity.Method.DeclaringType, true);
                         _body = _method.GetILGenerator();
