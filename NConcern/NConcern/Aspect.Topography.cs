@@ -8,6 +8,23 @@ namespace NConcern
 {
     abstract public partial class Aspect
     {
+        static private class Topography
+        {
+            static private readonly MethodInfo m_Dictionary = Metadata.Method(() => Aspect.Topography.Dictionary<object>()).GetGenericMethodDefinition();
+            static private readonly object[] m_Arguments = new object[0];
+
+            static private Dictionary<MethodInfo, Aspect.Map> Dictionary<T>()
+                where T : class
+            {
+                return Aspect.Topography<T>.Dictionary;
+            }
+
+            static public Dictionary<MethodInfo, Aspect.Map> Dictionary(Type type)
+            {
+                return Aspect.Topography.m_Dictionary.MakeGenericMethod(type).Invoke(null, Aspect.Topography.m_Arguments) as Dictionary<MethodInfo, Aspect.Map>;
+            }
+        }
+
         static private class Topography<T>
             where T : class
         {

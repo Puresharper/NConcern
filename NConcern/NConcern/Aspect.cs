@@ -71,10 +71,29 @@ namespace NConcern
                     Aspect.Current = this;
                     this.m_Typology.AddLast(Metadata<T>.Type);
                     this.m_Dispose.Add(Metadata<T>.Type, this.Dispose<T>);
-                    foreach (var _method in Topography<T>.Dictionary.Keys)
-                    {
-                        Topography<T>.Dictionary[_method].Add(this);
-                    }
+                    foreach (var _method in Aspect.Topography<T>.Dictionary.Keys) { Aspect.Topography<T>.Dictionary[_method].Add(this); }
+                }
+                finally { Aspect.Current = _current; }
+            }
+        }
+
+        /// <summary>
+        /// Attach aspect to a target class.
+        /// </summary>
+        /// <param name="type">Type of target class.</param>
+        public void Manage(Type type)
+        {
+            lock (this.m_Resource)
+            {
+                if (this.m_Dispose.ContainsKey(type)) { return; }
+                var _current = Aspect.Current;
+                try
+                {
+                    Aspect.Current = this;
+                    this.m_Typology.AddLast(type);
+                    this.m_Dispose.Add(type, () => this.Dispose(type));
+                    var _dictionary = Aspect.Topography.Dictionary(type);
+                    foreach (var _method in _dictionary.Keys) { _dictionary[_method].Add(this); }
                 }
                 finally { Aspect.Current = _current; }
             }
@@ -93,10 +112,24 @@ namespace NConcern
                 if (this.m_Dispose.Remove(Metadata<T>.Type))
                 {
                     this.m_Typology.Remove(Metadata<T>.Type);
-                    foreach (var _method in Topography<T>.Dictionary.Keys)
-                    {
-                        Topography<T>.Dictionary[_method].Remove(this);
-                    }
+                    foreach (var _method in Aspect.Topography<T>.Dictionary.Keys) { Aspect.Topography<T>.Dictionary[_method].Remove(this); }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Detach aspect from target class.
+        /// </summary>
+        /// <param name="type">Type of target class.</param>
+        public void Dispose(Type type)
+        {
+            lock (this.m_Resource)
+            {
+                if (this.m_Dispose.Remove(type))
+                {
+                    this.m_Typology.Remove(type);
+                    var _dictionary = Aspect.Topography.Dictionary(type);
+                    foreach (var _method in _dictionary.Keys) { _dictionary[_method].Remove(this); }
                 }
             }
         }
