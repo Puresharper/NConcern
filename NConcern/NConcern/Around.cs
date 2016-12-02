@@ -78,37 +78,56 @@ namespace NConcern
                 case Advice.Styles.Delegation:
                     _type = activity.Method.ReturnType;
                     _signature = activity.Signature;
-                    var _operation = new Closure.Operation(activity.Pointer, _signature, activity.Method.ReturnType);
+                    var _routine = new Closure.Routine(activity.Pointer, _signature, activity.Method.ReturnType);
                     _method = new DynamicMethod(string.Empty, _type, _signature, activity.Method.DeclaringType, true);
                     _body = _method.GetILGenerator();
                     if (_type == Metadata.Void)
                     {
                         _body.Emit(OpCodes.Ldsfld, this.m_Delegation);
                         _body.Emit(_signature, false);
-                        _body.Emit(OpCodes.Newobj, _operation.Constructor);
-                        _body.Emit(OpCodes.Ldftn, _operation.Method);
+                        _body.Emit(OpCodes.Newobj, _routine.Constructor);
+                        _body.Emit(OpCodes.Ldftn, _routine.Method);
                         _body.Emit(OpCodes.Newobj, Metadata<Action>.Type.GetConstructors().Single());
                         _body.Emit(OpCodes.Call, Metadata<Action<Action>>.Method(_Action => _Action.Invoke(Argument<Action>.Value)));
                     }
                     else
                     {
-                        _body.DeclareLocal(_operation.Type);
+                        _body.DeclareLocal(_routine.Type);
                         _body.Emit(OpCodes.Ldsfld, this.m_Delegation);
                         _body.Emit(_signature, false);
-                        _body.Emit(OpCodes.Newobj, _operation.Constructor);
+                        _body.Emit(OpCodes.Newobj, _routine.Constructor);
                         _body.Emit(OpCodes.Stloc_0);
                         _body.Emit(OpCodes.Ldloc_0);
-                        _body.Emit(OpCodes.Ldftn, _operation.Method);
+                        _body.Emit(OpCodes.Ldftn, _routine.Method);
                         _body.Emit(OpCodes.Newobj, Metadata<Action>.Type.GetConstructors().Single());
                         _body.Emit(OpCodes.Call, Metadata<Action<Action>>.Method(_Action => _Action.Invoke(Argument<Action>.Value)));
                         _body.Emit(OpCodes.Ldloc_0);
-                        _body.Emit(OpCodes.Ldfld, _operation.Value);
+                        _body.Emit(OpCodes.Ldfld, _routine.Value);
                     }
                     _body.Emit(OpCodes.Ret);
                     _method.Prepare();
                     return activity.Override(_method.Pointer());
                 case Advice.Styles.Reflection:
-                    throw new NotSupportedException();
+                    _type = activity.Method.ReturnType;
+                    _signature = activity.Signature;
+                    var _function = new Closure.Function(activity.Pointer, _signature, activity.Method.ReturnType);
+                    _method = new DynamicMethod(string.Empty, _type, _signature, activity.Method.DeclaringType, true);
+                    _body = _method.GetILGenerator();
+                    _body.Emit(OpCodes.Ldsfld, this.m_Reflection);
+                    _body.Emit(_signature, true);
+                    _body.Emit(OpCodes.Newobj, _function.Constructor);
+                    _body.Emit(OpCodes.Ldftn, _function.Method);
+                    _body.Emit(OpCodes.Newobj, Metadata<Func<object, object[], object>>.Type.GetConstructors().Single());
+                    _body.Emit(OpCodes.Call, Metadata<Func<object, object[], Func<object, object[], object>, object>>.Method(_Function => _Function.Invoke(Argument<object>.Value, Argument<object[]>.Value, Argument<Func<object, object[], object>>.Value)));
+                    if (_type == Metadata.Void) { _body.Emit(OpCodes.Pop); }
+                    else
+                    {
+                        if (_type.IsValueType) { _body.Emit(OpCodes.Unbox_Any, _type); }
+                        else { _body.Emit(OpCodes.Castclass, _type); }
+                    }
+                    _body.Emit(OpCodes.Ret);
+                    _method.Prepare();
+                    return activity.Override(_method.Pointer());
                 default: throw new NotSupportedException();
             }
         }

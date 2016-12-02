@@ -67,6 +67,8 @@
     <Compile Include="System\Reflection\__Type.cs" />
     <Compile Include="System\Resource.cs" />
     <Compile Include="System\Runtime\Closure.cs" />
+    <Compile Include="System\Runtime\Closure.Function.cs" />
+    <Compile Include="System\Runtime\Closure.Routine.cs" />
     <Compile Include="System\__AppDomain.cs" />
     <Compile Include="Aspect.Topography.cs" />
   </ItemGroup>

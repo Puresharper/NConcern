@@ -38,6 +38,7 @@ namespace System.Reflection.Emit
             {
                 if (signature.Instance == null)
                 {
+                    body.Emit(OpCodes.Ldnull);
                     switch (signature.Parameters.Count)
                     {
                         case 0: body.Emit(OpCodes.Ldc_I4_0); break;
