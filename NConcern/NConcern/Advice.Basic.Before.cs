@@ -34,7 +34,7 @@ namespace NConcern
         /// </summary>
         /// <typeparam name="T">Type</typeparam>
         /// <param name="basic">Basic</param>
-        /// <param name="advice">Delegate to be invoked before the advised method : Action(object = [target instance of advised method call (null if advised method is static)], object[] = [boxed arguments used to call advised method])</param>
+        /// <param name="advice">Delegate to be invoked before the advised method : Action(object = [target instance of advised method call], object[] = [boxed arguments used to call advised method])</param>
         /// <returns>Advice</returns>
         static public Advice<T> Before<T>(this Advice.IBasic<T> basic, Action<object, object[]> advice)
             where T : class

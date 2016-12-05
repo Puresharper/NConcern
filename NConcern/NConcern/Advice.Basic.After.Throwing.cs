@@ -57,7 +57,7 @@ namespace NConcern
         /// </summary>
         /// <typeparam name="T">Type</typeparam>
         /// <param name="basic">Basic</param>
-        /// <param name="advice">Delegate to be invoked after the advised method : Action(object = [target instance of advised method call (null if advised method is static)], object[] = [boxed arguments used to call advised method])</param>
+        /// <param name="advice">Delegate to be invoked after the advised method : Action(object = [target instance of advised method call], object[] = [boxed arguments used to call advised method])</param>
         /// <returns>Advice</returns>
         static public Advice<T> Throwing<T>(this Advice.Basic<T>.IAfter basic, Action<object, object[]> advice)
             where T : class
@@ -106,7 +106,7 @@ namespace NConcern
         /// </summary>
         /// <typeparam name="T">Type</typeparam>
         /// <param name="basic">Basic</param>
-        /// <param name="advice">Delegate to be invoked after the advised method : Action(object = [target instance of advised method call (null if advised method is static)], object[] = [boxed arguments used to call advised method], Exception = [exception thrown])</param>
+        /// <param name="advice">Delegate to be invoked after the advised method : Action(object = [target instance of advised method call], object[] = [boxed arguments used to call advised method], Exception = [exception thrown])</param>
         /// <returns>Advice</returns>
         static public Advice<T> Throwing<T>(this Advice.Basic<T>.IAfter basic, Action<object, object[], Exception> advice)
             where T : class

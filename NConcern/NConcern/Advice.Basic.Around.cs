@@ -59,7 +59,7 @@ namespace NConcern
         /// </summary>
         /// <typeparam name="T">Type</typeparam>
         /// <param name="basic">Basic</param>
-        /// <param name="advice">Delegate to be invoked instead of the advised method : Action(object = [target instance of advised method call (null if advised method is static)], object[] = [boxed arguments used to call advised method], Action = [delegate that invokes the advised method body])</param>
+        /// <param name="advice">Delegate to be invoked instead of the advised method : Action(object = [target instance of advised method call], object[] = [boxed arguments used to call advised method], Action = [delegate that invokes the advised method body])</param>
         /// <returns>Advice</returns>
         static public Advice<T> Around<T>(this Advice.IBasic<T> basic, Action<object, object[], Action> advice)
             where T : class
@@ -107,7 +107,7 @@ namespace NConcern
         /// </summary>
         /// <typeparam name="T">Type</typeparam>
         /// <param name="basic">Basic</param>
-        /// <param name="advice">Delegate to be invoked instead of the advised method : Func(object = [target instance of advised method call (null if advised method is static)], object[] = [boxed arguments used to call advised method], Func() = [delegate that invokes advised method body (return boxed return value or null if return type is void)]) return boxed return value (null if return type is void)</param>
+        /// <param name="advice">Delegate to be invoked instead of the advised method : Func(object = [target instance of advised method call], object[] = [boxed arguments used to call advised method], Func() = [delegate that invokes advised method body (return boxed return value or null if return type is void)]) return boxed return value (null if return type is void)</param>
         /// <returns>Advice</returns>
         static public Advice<T> Around<T>(this Advice.IBasic<T> basic, Func<object, object[], Func<object>, object> advice)
             where T : class

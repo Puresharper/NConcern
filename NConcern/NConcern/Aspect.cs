@@ -71,7 +71,11 @@ namespace NConcern
                     Aspect.Current = this;
                     this.m_Typology.AddLast(Metadata<T>.Type);
                     this.m_Dispose.Add(Metadata<T>.Type, this.Dispose<T>);
-                    foreach (var _method in Aspect.Topography<T>.Dictionary.Keys) { Aspect.Topography<T>.Dictionary[_method].Add(this); }
+                    foreach (var _method in Aspect.Topography<T>.Dictionary.Keys)
+                    {
+                        if (_method.IsStatic) { continue; }
+                        Aspect.Topography<T>.Dictionary[_method].Add(this);
+                    }
                 }
                 finally { Aspect.Current = _current; }
             }
@@ -83,6 +87,7 @@ namespace NConcern
         /// <param name="type">Type of target class.</param>
         public void Manage(Type type)
         {
+            if (type.IsValueType || type.IsInterface || (type.IsAbstract && type.IsSealed)) { throw new NotSupportedException(); }
             lock (this.m_Resource)
             {
                 if (this.m_Dispose.ContainsKey(type)) { return; }
@@ -93,7 +98,11 @@ namespace NConcern
                     this.m_Typology.AddLast(type);
                     this.m_Dispose.Add(type, () => this.Dispose(type));
                     var _dictionary = Aspect.Topography.Dictionary(type);
-                    foreach (var _method in _dictionary.Keys) { _dictionary[_method].Add(this); }
+                    foreach (var _method in _dictionary.Keys)
+                    {
+                        if (_method.IsStatic) { continue; }
+                        _dictionary[_method].Add(this);
+                    }
                 }
                 finally { Aspect.Current = _current; }
             }
@@ -123,6 +132,7 @@ namespace NConcern
         /// <param name="type">Type of target class.</param>
         public void Dispose(Type type)
         {
+            if (type.IsValueType || type.IsInterface || (type.IsAbstract && type.IsSealed)) { throw new NotSupportedException(); }
             lock (this.m_Resource)
             {
                 if (this.m_Dispose.Remove(type))

@@ -40,7 +40,7 @@ namespace NConcern
         /// </summary>
         /// <typeparam name="T">Type</typeparam>
         /// <param name="linq">Linq</param>
-        /// <param name="advice">Delegate used to produce an expression of code to be invoked before the advised method : Func(Expression = [expression of target instance of advised method call (null if advised method is static)], IEnumerable<Expression> = [enumerable of expression of argument used to call advised method]) return an expression(void) of code to invoke before the advised method</param>
+        /// <param name="advice">Delegate used to produce an expression of code to be invoked before the advised method : Func(Expression = [expression of target instance of advised method call], IEnumerable<Expression> = [enumerable of expression of argument used to call advised method]) return an expression(void) of code to invoke before the advised method</param>
         /// <returns>Advice</returns>
         static public Advice<T> Before<T>(this Advice.ILinq<T> linq, Func<Expression, IEnumerable<Expression>, Expression> advice)
             where T : class
