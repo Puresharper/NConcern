@@ -52,7 +52,7 @@ namespace NConcern
         /// <typeparam name="T">Specific target type.</typeparam>
         /// <param name="method">Method to advise.</param>
         /// <returns>Advice.</returns>
-        abstract protected IEnumerable<Advice> Advise<T>(MethodInfo method)
+        abstract protected IEnumerable<Advice<T>> Advise<T>(MethodInfo method)
             where T : class;
 
         /// <summary>

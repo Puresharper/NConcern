@@ -2,7 +2,8 @@
 
 namespace System.Runtime
 {
-    static internal partial class Closure
+    static internal partial class Closure<T>
+        where T : class
     {
     }
 }

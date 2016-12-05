@@ -21,6 +21,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -30,6 +32,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -42,27 +45,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Logging.cs" />
-    <Compile Include="LoggingImplementedByCIL.cs" />
-    <Compile Include="LoggingImplementedByExpression.cs" />
-    <Compile Include="LoggingImplementedByReflection.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ValidatingWithReflection.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NConcern.Example.Logging\NConcern.Example.Logging.csproj">
-      <Project>{d9798155-5b3f-4bce-b28c-aef74bf9080f}</Project>
-      <Name>NConcern.Example.Logging</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NConcern.Example.Validating\NConcern.Example.Validating.csproj">
-      <Project>{5b023e54-09eb-49c9-9bad-03d559e749f6}</Project>
-      <Name>NConcern.Example.Validating</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NConcern.Example\NConcern.Example.csproj">
-      <Project>{c30384aa-dc9a-4d84-aadf-5ca6fd1af6be}</Project>
-      <Name>NConcern.Example</Name>
-    </ProjectReference>
     <ProjectReference Include="..\NConcern\NConcern.csproj">
       <Project>{63c3f47c-360e-4586-92dc-a1390c082408}</Project>
       <Name>NConcern</Name>

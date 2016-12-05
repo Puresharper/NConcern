@@ -9,17 +9,21 @@ namespace NConcern
     {
         abstract internal class Activity
         {
+            internal readonly Activity Authority;
             public readonly Type Type;
             public readonly MethodInfo Method;
             public readonly Signature Signature;
+            internal readonly MethodInfo Implementation;
             internal readonly IntPtr Pointer;
             
-            protected Activity(Type type, MethodInfo method, Signature signature, IntPtr pointer)
+            protected Activity(Activity authority, Type type, MethodInfo method, Signature signature, MethodInfo implementation)
             {
+                this.Authority = authority;
                 this.Type = type;
                 this.Method = method;
                 this.Signature = signature;
-                this.Pointer = pointer;
+                this.Implementation = implementation;
+                this.Pointer = implementation.Pointer();
             }
 
             abstract public Activity Incorporate(Aspect aspect);
@@ -29,18 +33,18 @@ namespace NConcern
             where T : class
         {
             public Activity(MethodInfo method)
-                : base(Metadata<T>.Type, method, method.Signature(), method.Pointer())
+                : base(null, Metadata<T>.Type, method, method.Signature(), method)
             {
             }
 
-            private Activity(Activity<T> activity, IntPtr pointer)
-                : base(activity.Type, activity.Method, activity.Signature, pointer)
+            private Activity(Activity<T> authority, MethodInfo method)
+                : base(authority, authority.Type, authority.Method, authority.Signature, method)
             {
             }
 
-            public Aspect.Activity<T> Override(IntPtr pointer)
+            public Aspect.Activity<T> Override(MethodInfo method)
             {
-                return new Aspect.Activity<T>(this, pointer);
+                return new Aspect.Activity<T>(this, method);
             }
 
             override public Activity Incorporate(Aspect aspect)
@@ -51,7 +55,7 @@ namespace NConcern
                 foreach (var _advice in _advising.Reverse())
                 {
                     if (_advice == null) { continue; }
-                    _activity = _advice.Override(_activity);
+                    _activity = _advice.Advise(_activity);
                 }
                 return _activity;
             }

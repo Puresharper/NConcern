@@ -30,60 +30,20 @@ namespace System.Collections.Generic
             this.m_List = new Enumerable<T>(enumerable);
         }
 
-        //public Collection(IEnumerable<T> enumerable, int index)
-        //{
-        //    this.m_List = new Stub<T>(new Enumerable<T>(enumerable), index);
-        //}
-
-        //public Collection(IEnumerable<T> enumerable, int index, int count)
-        //{
-        //    this.m_List = new Segment<T>(new Enumerable<T>(enumerable), index, count);
-        //}
-
         public Collection(IList<T> list)
         {
             this.m_List = list;
         }
-        
-        //public Collection(IList<T> list, int index)
-        //{
-        //    this.m_List = new Stub<T>(list, index);
-        //}
-
-        //public Collection(IList<T> list, int index, int count)
-        //{
-        //    this.m_List = new Segment<T>(list, index, count);
-        //}
 
         public Collection(T[] array)
         {
             this.m_List = array;
         }
 
-        //public Collection(T[] array, int index)
-        //{
-        //    this.m_List = new Stub<T>(array, index);
-        //}
-
-        //public Collection(T[] array, int index, int count)
-        //{
-        //    this.m_List = new Segment<T>(array, index, count);
-        //}
-
         public Collection(Collection<T> collection)
         {
             this.m_List = collection.m_List;
         }
-
-        //public Collection(Collection<T> collection, int index)
-        //{
-        //    this.m_List = new Stub<T>(collection.m_List, index);
-        //}
-
-        //public Collection(Collection<T> collection, int index, int count)
-        //{
-        //    this.m_List = new Segment<T>(collection.m_List, index, count);
-        //}
 
         public T this[int index]
         {

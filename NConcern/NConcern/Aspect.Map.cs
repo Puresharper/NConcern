@@ -34,61 +34,64 @@ namespace NConcern
                 this.Activity = activity;
                 this.m_Aspectization = new LinkedList<Aspect>();
                 this.m_Dictionary = new Dictionary<Aspect, Activity>();
-                if (method.IsVirtual) { this.m_Setup = this.Setup; }
-                else
+                if (method.IsVirtual) { return; }
+
+                var _type = Map.m_Module.DefineType(string.Concat(Metadata<Delegate>.Type.Name, Guid.NewGuid().ToString("N")), TypeAttributes.Public | TypeAttributes.Class | TypeAttributes.Sealed | TypeAttributes.Abstract);
+                switch (IntPtr.Size)
                 {
-                    var _type = Map.m_Module.DefineType(string.Concat(Metadata<Delegate>.Type.Name, Guid.NewGuid().ToString("N")), TypeAttributes.Public | TypeAttributes.Class | TypeAttributes.Sealed | TypeAttributes.Abstract);
-                    switch (IntPtr.Size)
-                    {
-                        case 4: _type.DefineField(Metadata<Map>.Field(_Activity => _Activity.m_Pointer).Name, Metadata<int>.Type, FieldAttributes.Static | FieldAttributes.Public); break;
-                        case 8: _type.DefineField(Metadata<Map>.Field(_Activity => _Activity.m_Pointer).Name, Metadata<long>.Type, FieldAttributes.Static | FieldAttributes.Public); break;
-                        default: throw new NotSupportedException();
-                    }
-                    var _field = _type.CreateType().GetFields(BindingFlags.Static | BindingFlags.Public).Single();
-                    var _signature = this.Method.Signature();
-                    var _method = new DynamicMethod(method.Name, this.Method.ReturnType, _signature, this.Method.DeclaringType, true);
-                    var _body = _method.GetILGenerator();
-                    for (var _index = 0; _index < _signature.Length; _index++)
-                    {
-                        switch (_index)
-                        {
-                            case 0: _body.Emit(OpCodes.Ldarg_0); break;
-                            case 1: _body.Emit(OpCodes.Ldarg_1); break;
-                            case 2: _body.Emit(OpCodes.Ldarg_2); break;
-                            case 3: _body.Emit(OpCodes.Ldarg_3); break;
-                            default: _body.Emit(OpCodes.Ldarg_S, _index); break;
-                        }
-                    }
-                    _body.Emit(OpCodes.Ldsflda, _field);
-                    _body.Emit(OpCodes.Volatile);
-                    _body.Emit(OpCodes.Ldobj, _field.FieldType);
-                    _body.EmitCalli(OpCodes.Calli, CallingConventions.Standard, method.ReturnType, _signature, null);
-                    _body.Emit(OpCodes.Ret);
-                    _method.Prepare();
-                    switch (IntPtr.Size)
-                    {
-                        case 4:
-                            *((int*)(this.m_Pointer)) = _method.Pointer().ToInt32();
-                            this.m_Setup = Expression.Lambda<Action<IntPtr>>(Expression.Assign(Expression.Field(null, _field), Expression.Call(Parameter<IntPtr>.Expression, Metadata<IntPtr>.Method(_Pointer => _Pointer.ToInt32()))), Parameter<IntPtr>.Expression).Compile();
-                            break;
-                        case 8:
-                            *((long*)(this.m_Pointer)) = _method.Pointer().ToInt64();
-                            this.m_Setup = Expression.Lambda<Action<IntPtr>>(Expression.Assign(Expression.Field(null, _field), Expression.Call(Parameter<IntPtr>.Expression, Metadata<IntPtr>.Method(_Pointer => _Pointer.ToInt64()))), Parameter<IntPtr>.Expression).Compile();
-                            break;
-                        default: throw new NotSupportedException();
-                    }
-                    this.m_Setup(activity.Pointer);
+                    case 4: _type.DefineField(Metadata<Map>.Field(_Activity => _Activity.m_Pointer).Name, Metadata<int>.Type, FieldAttributes.Static | FieldAttributes.Public); break;
+                    case 8: _type.DefineField(Metadata<Map>.Field(_Activity => _Activity.m_Pointer).Name, Metadata<long>.Type, FieldAttributes.Static | FieldAttributes.Public); break;
+                    default: throw new NotSupportedException();
                 }
+                var _field = _type.CreateType().GetFields(BindingFlags.Static | BindingFlags.Public).Single();
+                var _signature = this.Method.Signature();
+                var _method = new DynamicMethod(method.Name, this.Method.ReturnType, _signature, this.Method.DeclaringType, true);
+                var _body = _method.GetILGenerator();
+                for (var _index = 0; _index < _signature.Length; _index++)
+                {
+                    switch (_index)
+                    {
+                        case 0: _body.Emit(OpCodes.Ldarg_0); break;
+                        case 1: _body.Emit(OpCodes.Ldarg_1); break;
+                        case 2: _body.Emit(OpCodes.Ldarg_2); break;
+                        case 3: _body.Emit(OpCodes.Ldarg_3); break;
+                        default: _body.Emit(OpCodes.Ldarg_S, _index); break;
+                    }
+                }
+                _body.Emit(OpCodes.Ldsflda, _field);
+                _body.Emit(OpCodes.Volatile);
+                _body.Emit(OpCodes.Ldobj, _field.FieldType);
+                _body.EmitCalli(OpCodes.Calli, CallingConventions.Standard, method.ReturnType, _signature, null);
+                _body.Emit(OpCodes.Ret);
+                _method.Prepare();
+                System.Runtime.InteropServices.GCHandle.Alloc(_method);
+                switch (IntPtr.Size)
+                {
+                    case 4:
+                        *((int*)(this.m_Pointer)) = _method.Pointer().ToInt32();
+                        this.m_Setup = Expression.Lambda<Action<IntPtr>>(Expression.Assign(Expression.Field(null, _field), Expression.Call(Parameter<IntPtr>.Expression, Metadata<IntPtr>.Method(_Pointer => _Pointer.ToInt32()))), Parameter<IntPtr>.Expression).Compile();
+                        break;
+                    case 8:
+                        *((long*)(this.m_Pointer)) = _method.Pointer().ToInt64();
+                        this.m_Setup = Expression.Lambda<Action<IntPtr>>(Expression.Assign(Expression.Field(null, _field), Expression.Call(Parameter<IntPtr>.Expression, Metadata<IntPtr>.Method(_Pointer => _Pointer.ToInt64()))), Parameter<IntPtr>.Expression).Compile();
+                        break;
+                    default: throw new NotSupportedException();
+                }
+                this.m_Setup(activity.Pointer);
             }
 
             unsafe private void Setup(IntPtr pointer)
             {
-                switch (IntPtr.Size)
+                if (this.m_Setup == null)
                 {
-                    case 4: *((int*)(this.m_Pointer)) = pointer.ToInt32(); break;
-                    case 8: *((long*)(this.m_Pointer)) = pointer.ToInt64(); break;
-                    default: throw new NotSupportedException();
+                    switch (IntPtr.Size)
+                    {
+                        case 4: *((int*)(this.m_Pointer)) = pointer.ToInt32(); break;
+                        case 8: *((long*)(this.m_Pointer)) = pointer.ToInt64(); break;
+                        default: throw new NotSupportedException();
+                    }
                 }
+                else { this.m_Setup(pointer); }
             }
 
             public void Update()
@@ -101,7 +104,7 @@ namespace NConcern
                         _activity = _activity.Incorporate(_aspect);
                         this.m_Dictionary[_aspect] = _activity;
                     }
-                    this.m_Setup(_activity.Pointer);
+                    this.Setup(_activity.Pointer);
                     this.Method.Prepare();
                 }
             }
