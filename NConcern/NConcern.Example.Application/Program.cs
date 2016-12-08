@@ -33,6 +33,7 @@ namespace NConcern.Example.Application
             if (method.GetBaseDefinition().DeclaringType == Metadata<T>.Type)
             {
                 yield return Advice<T>.Basic.Before(() => Console.Write("[1] Basic.Before"));
+                yield return Advice<T>.Basic.After((_Instance, _Arguments) => Console.WriteLine("[3] Basic.Before : {0}.{1}({2})", _Instance, method.Name, string.Join(", ", _Arguments)));
                 yield return Advice<T>.Basic.After(() => Console.WriteLine("[2] Basic.After"));
                 yield return Advice<T>.Basic.After((_Instance, _Arguments) => Console.WriteLine("[3] Basic.After : {0}.{1}({2})", _Instance, method.Name, string.Join(", ", _Arguments)));
                 yield return Advice<T>.Basic.After.Returning(() => Console.WriteLine("[4] Basic.After Returning"));
