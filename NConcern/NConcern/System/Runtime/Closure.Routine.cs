@@ -4,7 +4,7 @@ using System.Reflection.Emit;
 
 namespace System.Runtime
 {
-    static internal partial class Closure<T>
+    static internal partial class Closure
     {
         public sealed class Routine
         {
@@ -17,7 +17,7 @@ namespace System.Runtime
 
             public Routine(IntPtr method, Signature signature, Type type)
             {
-                var _type = Closure<T>.Routine.m_Module.DefineType(string.Concat(Metadata<Type>.Type.Name, Guid.NewGuid().ToString("N")), TypeAttributes.Class | TypeAttributes.Public, Metadata<object>.Type);
+                var _type = Closure.Routine.m_Module.DefineType(string.Concat(Metadata<Type>.Type.Name, Guid.NewGuid().ToString("N")), TypeAttributes.Class | TypeAttributes.Public, Metadata<object>.Type);
                 var _constructor = _type.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, signature).GetILGenerator();
                 var _method = _type.DefineMethod(Metadata<Routine>.Type.Name, MethodAttributes.Public, CallingConventions.HasThis, Metadata.Void, Type.EmptyTypes).GetILGenerator();
                 if (type == Metadata.Void)

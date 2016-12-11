@@ -8,14 +8,6 @@ namespace System.Reflection.Emit
     [EditorBrowsable(EditorBrowsableState.Never)]
     static internal class ___ILGenerator
     {
-        static internal void Emit<T>(this ILGenerator body, Aspect.Activity<T> activity)
-            where T : class
-        {
-            var _signature = activity.Signature;
-            body.Emit(_signature, false);
-            body.Emit(activity.Pointer, activity.Method.ReturnType, _signature);
-        }
-
         static public void Emit(this ILGenerator body, Action<ILGenerator> instruction)
         {
             instruction(body);
