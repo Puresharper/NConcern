@@ -7,6 +7,9 @@ using System.Reflection;
 
 namespace NConcern
 {
+    /// <summary>
+    /// Manage weaving process.
+    /// </summary>
     static public partial class Aspect
     {
         static private readonly Resource m_Resource = new Resource();

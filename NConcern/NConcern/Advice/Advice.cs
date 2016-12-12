@@ -42,16 +42,30 @@ namespace NConcern
 
         private readonly Func<MethodInfo, IntPtr, MethodInfo> m_Decorate;
 
+        /// <summary>
+        /// Create an advice, a way to decorate.
+        /// </summary>
+        /// <param name="decorate">Delegate use to decorate a method : Func(MethodInfo = [base method to decorate], IntPtr = [pointer to base method]) return replacing method</param>
         public Advice(Func<MethodInfo, IntPtr, MethodInfo> decorate)
         {
             this.m_Decorate = decorate;
         }
 
+        /// <summary>
+        /// Create an advice, a way to decorate.
+        /// </summary>
+        /// <param name="decorate">Delegate use to decorate a method : Func(MethodInfo = [base method to decorate]) return replacing method</param>
         public Advice(Func<MethodInfo, MethodInfo> decorate)
         {
             this.m_Decorate = new Func<MethodInfo, IntPtr, MethodInfo>((_Method, _Pointer) => decorate(_Method));
         }
 
+        /// <summary>
+        /// Decorate a method for a specific concern.
+        /// </summary>
+        /// <param name="method">Base method to decorate</param>
+        /// <param name="pointer">Pointer to base method</param>
+        /// <returns>Replacing method</returns>
         public MethodInfo Decorate(MethodInfo method, IntPtr pointer)
         {
             return this.m_Decorate(method, pointer);
