@@ -61,6 +61,15 @@ namespace NConcern
         }
 
         /// <summary>
+        /// Create an advice with a specific replacing method.
+        /// </summary>
+        /// <param name="method">Replacing method</param>
+        public Advice(MethodInfo method)
+        {
+            this.m_Decorate = new Func<MethodInfo, IntPtr, MethodInfo>((_Method, _Pointer) => method);
+        }
+
+        /// <summary>
         /// Decorate a method for a specific concern.
         /// </summary>
         /// <param name="method">Base method to decorate</param>
