@@ -74,6 +74,12 @@ namespace NConcern
                 return Aspect.Directory.m_Dictionary.Where(_Item => _Item.Value.Contains(Singleton<T>.Value)).Select(_Item => _Item.Key).ToArray();
             }
 
+            static public IEnumerable<Type> Index(MethodInfo method)
+            {
+                var _entry = Aspect.Directory.Obtain(method);
+                return _entry.Select(_Aspect => _Aspect.GetType()).ToArray();
+            }
+
             static public void Add<T>(MethodInfo method)
                 where T : class, IAspect, new()
             {

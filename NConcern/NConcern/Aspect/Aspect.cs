@@ -49,6 +49,33 @@ namespace NConcern
         }
 
         /// <summary>
+        /// Get all methods managed by an aspect.
+        /// </summary>
+        /// <typeparam name="T">Aspect</typeparam>
+        /// <returns>Enumerable of methods managed by the aspect</returns>
+        static public IEnumerable<MethodInfo> Woven<T>()
+            where T : class, IAspect, new()
+        {
+            lock (Aspect.m_Resource)
+            {
+                return Aspect.Directory.Index<T>();
+            }
+        }
+
+        /// <summary>
+        /// Get all aspects woven in a method.
+        /// </summary>
+        /// <param name="method">Method</param>
+        /// <returns>Enumerable of aspects woven in the method</returns>
+        static public IEnumerable<Type> Woven(MethodInfo method)
+        {
+            lock (Aspect.m_Resource)
+            {
+                return Aspect.Directory.Index(method);
+            }
+        }
+
+        /// <summary>
         /// Weave an aspect to a specific method.
         /// </summary>
         /// <typeparam name="T">Aspect</typeparam>
