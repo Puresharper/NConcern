@@ -65,13 +65,13 @@ namespace NConcern
 
             static public IEnumerable<MethodInfo> Index()
             {
-                return Aspect.Directory.m_Dictionary.Keys.ToArray();
+                return Aspect.Directory.m_Dictionary.Values.Where(_Entry => _Entry.Count() > 0).Select(_Entry => _Entry.Method).ToArray();
             }
 
             static public IEnumerable<MethodInfo> Index<T>()
                 where T : class, IAspect, new()
             {
-                return Aspect.Directory.m_Dictionary.Where(_Item => _Item.Value.Contains(Singleton<T>.Value)).Select(_Item => _Item.Key).ToArray();
+                return Aspect.Directory.m_Dictionary.Values.Where(_Entry => _Entry.Contains(Singleton<T>.Value)).Select(_Entry => _Entry.Method).ToArray();
             }
 
             static public IEnumerable<Type> Index(MethodInfo method)

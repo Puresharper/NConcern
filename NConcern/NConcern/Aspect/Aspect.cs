@@ -48,6 +48,14 @@ namespace NConcern
             return Aspect.Compatible(method.DeclaringType);
         }
 
+        static public IEnumerable<MethodInfo> Lookup()
+        {
+            lock (Aspect.m_Resource)
+            {
+                return Aspect.Directory.Index();
+            }
+        }
+
         /// <summary>
         /// Get all methods managed by an aspect.
         /// </summary>
