@@ -53,7 +53,7 @@ namespace NConcern
         /// </summary>
         /// <typeparam name="T">Aspect</typeparam>
         /// <returns>Enumerable of methods managed by the aspect</returns>
-        static public IEnumerable<MethodInfo> Woven<T>()
+        static public IEnumerable<MethodInfo> Lookup<T>()
             where T : class, IAspect, new()
         {
             lock (Aspect.m_Resource)
@@ -67,7 +67,7 @@ namespace NConcern
         /// </summary>
         /// <param name="method">Method</param>
         /// <returns>Enumerable of aspects woven in the method</returns>
-        static public IEnumerable<Type> Woven(MethodInfo method)
+        static public IEnumerable<Type> Enumerate(MethodInfo method)
         {
             lock (Aspect.m_Resource)
             {
@@ -85,7 +85,8 @@ namespace NConcern
         {
             lock (Aspect.m_Resource)
             {
-                Aspect.Directory.Add<T>(method);
+                if (Aspect.Directory.Index(method).Contains(Metadata<T>.Type)) { Aspect.Directory.Update<T>(method); }
+                else { Aspect.Directory.Add<T>(method); }
             }
         }
 
@@ -106,7 +107,8 @@ namespace NConcern
                     {
                         if (pattern(_method))
                         {
-                            Aspect.Weave<T>(_method);
+                            if (Aspect.Directory.Index(_method).Contains(Metadata<T>.Type)) { Aspect.Directory.Update<T>(_method); }
+                            else { Aspect.Directory.Add<T>(_method); }
                         }
                     }
                 }
