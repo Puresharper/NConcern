@@ -148,6 +148,19 @@ namespace NConcern
         }
 
         /// <summary>
+        /// Release all aspects for methods attributed with a specific custom attribute.
+        /// </summary>
+        /// <param name="type">Custom attribute type</param>
+        static public void Release(Type type)
+        {
+            if (!Metadata<Attribute>.Type.IsAssignableFrom(type)) { throw new InvalidOperationException(string.Format("[{0}] is not an custome attribute type.", type.Declaration())); }
+            lock (Aspect.m_Resource)
+            {
+                foreach (var _method in Aspect.Directory.Index().Where(_Method => _Method.IsDefined(type, true))) { Aspect.Directory.Remove(_method); }
+            }
+        }
+
+        /// <summary>
         /// Release an aspect for a specific method.
         /// </summary>
         /// <typeparam name="T">Aspect</typeparam>
@@ -185,6 +198,21 @@ namespace NConcern
             lock (Aspect.m_Resource)
             {
                 foreach (var _method in Aspect.Directory.Index<T>().Where(pattern)) { Aspect.Directory.Remove(_method); }
+            }
+        }
+
+        /// <summary>
+        /// Release an aspect for methods attributed with a specific custom attribute.
+        /// </summary>
+        /// <typeparam name="T">Aspect</typeparam>
+        /// <param name="type">Custom attribute type/param>
+        static public void Release<T>(Type type)
+            where T : class, IAspect, new()
+        {
+            if (!Metadata<Attribute>.Type.IsAssignableFrom(type)) { throw new InvalidOperationException(string.Format("[{0}] is not an custome attribute type.", type.Declaration())); }
+            lock (Aspect.m_Resource)
+            {
+                foreach (var _method in Aspect.Directory.Index<T>().Where(_Method => _Method.IsDefined(type, true))) { Aspect.Directory.Remove(_method); }
             }
         }
     }
