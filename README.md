@@ -1,8 +1,4 @@
-# NConcern
-NConcern is a .NET runtime AOP (Aspect-Oriented Programming) lightweight framework that reduces tangling caused by cross-cutting concerns. Its role is to introduce Aspect-Oriented Programming paradigm with a minimum cost to maximize quality and productivity.
-
-
-## Description
+# NConcern .NET AOP Framework
 NConcern is a .NET runtime AOP (Aspect-Oriented Programming) lightweight framework that reduces tangling caused by cross-cutting concerns. Its role is to introduce Aspect-Oriented Programming paradigm with a minimum cost to maximize quality and productivity.
 
 
