@@ -29,3 +29,73 @@ An advice is the code added by an aspect to complete a method. It can be impleme
 - After.Returning : runs after method execution only if it completes sucessfully
 - After.Throwing : runs after method execution only if it exits by throwing an exception
 - Around : runs around method execution
+
+
+## Example
+
+- Use case :
+```
+I want to trace my service calls with "Console.WriteLine".
+My services are OperationContract typed (WCF service)
+```
+
+- Disable compilation and JIT inlining by placing Debuggable attribute in AssemblyInfo.cs
+```
+[assembly: System.Diagnostics.Debuggable(true, true)]
+```
+
+- Calculator : WCF service
+```
+[ServiceContract]
+public class Calculator
+{
+    [OperationContract]
+    public int Add(int a, int b)
+    {
+       return a + b;
+    }
+}
+```
+
+- Tracer : simple tracer to log into Console
+```
+static public class Tracer
+{
+    static public void Trace(MethodInfo method, object[] arguments)
+    {
+        Console.WriteLine("{0}({1})", method.Name, string.Join(", ", arguments));
+    }
+}
+```
+
+- Logging (Aspect) : define how "Tracer" can be injected into a method
+```
+public class Logging : IAspect
+{
+    public IEnumerable<IAdvice> Advise(MethodInfo method)
+    {
+        yield return Advice.Basic.Before((instance, arguments) => 
+        {
+            Tracer.Trace(method, arguments);
+        });
+    }
+}
+```
+
+- Joinpoint : define a delegate to identify a group of methods (here : all services)
+```
+var services = new Func<MethodInfo, bool>(method =>
+{
+    return method.IsDefined(typeof(OperationContractAttribute), true);
+});
+```
+
+- Enable logging for services
+```
+Aspect.Weave<Logging>(services);
+```
+
+- Disable logging for services
+```
+Aspect.Release<Logging>(services);
+```
