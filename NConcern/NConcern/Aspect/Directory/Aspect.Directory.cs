@@ -86,13 +86,6 @@ namespace NConcern
                 Aspect.Directory.Obtain(method).Add(Singleton<T>.Value);
             }
 
-            static public void Update<T>(MethodInfo method)
-                where T : class, IAspect, new()
-            {
-                var _entry = Aspect.Directory.Obtain(method);
-                if (_entry.Contains(Singleton<T>.Value)) { _entry.Update(); }
-            }
-
             static public void Remove(MethodInfo method)
             {
                 var _entry = Aspect.Directory.Obtain(method);

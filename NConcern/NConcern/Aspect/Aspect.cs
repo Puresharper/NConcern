@@ -71,7 +71,7 @@ namespace NConcern
         }
 
         /// <summary>
-        /// Get all aspects woven in a method.
+        /// Get all aspects woven on a method.
         /// </summary>
         /// <param name="method">Method</param>
         /// <returns>Enumerable of aspects woven in the method</returns>
@@ -84,7 +84,7 @@ namespace NConcern
         }
 
         /// <summary>
-        /// Weave an aspect to a specific method.
+        /// Weave an aspect on a specific method.
         /// </summary>
         /// <typeparam name="T">Aspect</typeparam>
         /// <param name="method">Method</param>
@@ -93,13 +93,12 @@ namespace NConcern
         {
             lock (Aspect.m_Resource)
             {
-                if (Aspect.Directory.Index(method).Contains(Metadata<T>.Type)) { Aspect.Directory.Update<T>(method); }
-                else { Aspect.Directory.Add<T>(method); }
+                Aspect.Directory.Add<T>(method);
             }
         }
 
         /// <summary>
-        /// Weave an aspect to methods matching with a specific pattern
+        /// Weave an aspect on methods matching with a specific pattern
         /// </summary>
         /// <typeparam name="T">Aspect</typeparam>
         /// <param name="pattern">Pattern</param>
@@ -115,8 +114,7 @@ namespace NConcern
                     {
                         if (pattern(_method))
                         {
-                            if (Aspect.Directory.Index(_method).Contains(Metadata<T>.Type)) { Aspect.Directory.Update<T>(_method); }
-                            else { Aspect.Directory.Add<T>(_method); }
+                            Aspect.Directory.Add<T>(_method);
                         }
                     }
                 }
@@ -124,7 +122,31 @@ namespace NConcern
         }
 
         /// <summary>
-        /// Release all aspects for a specific method.
+        /// Weave an aspect on methods defined as [type] or defined in [type].
+        /// </summary>
+        /// <typeparam name="T">Aspect</typeparam>
+        /// <param name="type">Type</param>
+        static public void Weave<T>(Type type)
+            where T : class, IAspect, new()
+        {
+            if (Metadata<Attribute>.Type.IsAssignableFrom(type))
+            {
+                lock (Aspect.m_Resource)
+                {
+                    foreach (var _method in Aspect.Directory.Index<T>().Where(_Method => _Method.IsDefined(type, true) || _Method.DeclaringType.IsDefined(type, true) || _Method.ReflectedType.IsDefined(type, true))) { Aspect.Directory.Add<T>(_method); }
+                }
+            }
+            else
+            {
+                lock (Aspect.m_Resource)
+                {
+                    foreach (var _method in Aspect.Directory.Index<T>().Where(_Method => type.IsAssignableFrom(_Method.ReflectedType))) { Aspect.Directory.Add<T>(_method); }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Release all aspects from a specific method.
         /// </summary>
         /// <param name="method">Method</param>
         static public void Release(MethodInfo method)
@@ -136,7 +158,7 @@ namespace NConcern
         }
 
         /// <summary>
-        /// Release all aspects for methods matching with a specific pettern.
+        /// Release all aspects from methods matching with a specific pettern.
         /// </summary>
         /// <param name="pattern">Pattern</param>
         static public void Release(Func<MethodInfo, bool> pattern)
@@ -148,20 +170,29 @@ namespace NConcern
         }
 
         /// <summary>
-        /// Release all aspects for methods attributed with a specific custom attribute.
+        /// Release all aspects from methods defined as [type] or defined in [type].
         /// </summary>
         /// <param name="type">Custom attribute type</param>
         static public void Release(Type type)
         {
-            if (!Metadata<Attribute>.Type.IsAssignableFrom(type)) { throw new InvalidOperationException(string.Format("[{0}] is not an custom attribute type.", type.Declaration())); }
-            lock (Aspect.m_Resource)
+            if (Metadata<Attribute>.Type.IsAssignableFrom(type))
             {
-                foreach (var _method in Aspect.Directory.Index().Where(_Method => _Method.IsDefined(type, true))) { Aspect.Directory.Remove(_method); }
+                lock (Aspect.m_Resource)
+                {
+                    foreach (var _method in Aspect.Directory.Index().Where(_Method => _Method.IsDefined(type, true) || _Method.DeclaringType.IsDefined(type, true) || _Method.ReflectedType.IsDefined(type, true))) { Aspect.Directory.Remove(_method); }
+                }
+            }
+            else
+            {
+                lock (Aspect.m_Resource)
+                {
+                    foreach (var _method in Aspect.Directory.Index().Where(_Method => type.IsAssignableFrom(_Method.ReflectedType))) { Aspect.Directory.Remove(_method); }
+                }
             }
         }
 
         /// <summary>
-        /// Release an aspect for a specific method.
+        /// Release an aspect from a specific method.
         /// </summary>
         /// <typeparam name="T">Aspect</typeparam>
         static public void Release<T>()
@@ -174,7 +205,7 @@ namespace NConcern
         }
 
         /// <summary>
-        /// Release an aspect for a specific method.
+        /// Release an aspect from a specific method.
         /// </summary>
         /// <typeparam name="T">Aspect</typeparam>
         /// <param name="method">Method</param>
@@ -188,7 +219,7 @@ namespace NConcern
         }
 
         /// <summary>
-        /// Release an aspect for methods matching with a specific pattern.
+        /// Release an aspect from methods matching with a specific pattern.
         /// </summary>
         /// <typeparam name="T">Aspect</typeparam>
         /// <param name="pattern">Pattern</param>
@@ -202,17 +233,26 @@ namespace NConcern
         }
 
         /// <summary>
-        /// Release an aspect for methods attributed with a specific custom attribute.
+        /// Release an aspect from methods defined as [type] or defined in [type].
         /// </summary>
         /// <typeparam name="T">Aspect</typeparam>
         /// <param name="type">Custom attribute type/param>
         static public void Release<T>(Type type)
             where T : class, IAspect, new()
         {
-            if (!Metadata<Attribute>.Type.IsAssignableFrom(type)) { throw new InvalidOperationException(string.Format("[{0}] is not an custom attribute type.", type.Declaration())); }
-            lock (Aspect.m_Resource)
+            if (Metadata<Attribute>.Type.IsAssignableFrom(type))
             {
-                foreach (var _method in Aspect.Directory.Index<T>().Where(_Method => _Method.IsDefined(type, true))) { Aspect.Directory.Remove(_method); }
+                lock (Aspect.m_Resource)
+                {
+                    foreach (var _method in Aspect.Directory.Index<T>().Where(_Method => _Method.IsDefined(type, true) || _Method.DeclaringType.IsDefined(type, true) || _Method.ReflectedType.IsDefined(type, true))) { Aspect.Directory.Remove<T>(_method); }
+                }
+            }
+            else
+            {
+                lock (Aspect.m_Resource)
+                {
+                    foreach (var _method in Aspect.Directory.Index<T>().Where(_Method => type.IsAssignableFrom(_Method.ReflectedType))) { Aspect.Directory.Remove<T>(_method); }
+                }
             }
         }
     }

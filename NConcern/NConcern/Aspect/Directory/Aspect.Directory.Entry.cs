@@ -94,7 +94,7 @@ namespace NConcern
                     else { this.m_Setup(pointer); }
                 }
 
-                public void Update()
+                private void Update()
                 {
                     var _activity = this.Activity;
                     foreach (var _aspect in this.m_Aspectization)
@@ -108,7 +108,11 @@ namespace NConcern
 
                 public void Add(IAspect aspect)
                 {
-                    if (this.m_Dictionary.ContainsKey(aspect)) { return; }
+                    if (this.m_Dictionary.ContainsKey(aspect))
+                    {
+                        this.Update();
+                        return;
+                    }
                     this.m_Aspectization.AddFirst(aspect);
                     this.m_Dictionary.Add(aspect, null);
                     this.Update();
