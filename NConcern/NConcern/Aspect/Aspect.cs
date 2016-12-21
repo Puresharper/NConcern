@@ -110,7 +110,7 @@ namespace NConcern
                 foreach (var _type in Aspect.Explore().SelectMany(Aspect.Explore))
                 {
                     if (_type.ContainsGenericParameters) { continue; }
-                    foreach (var _method in Virtualization.Value(_type).Concat(_type.GetMethods(BindingFlags.Static | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.DeclaredOnly)))
+                    foreach (var _method in _type.Methods())
                     {
                         if (pattern(_method))
                         {
@@ -133,14 +133,24 @@ namespace NConcern
             {
                 lock (Aspect.m_Resource)
                 {
-                    foreach (var _method in Aspect.Directory.Index<T>().Where(_Method => _Method.IsDefined(type, true) || _Method.DeclaringType.IsDefined(type, true) || _Method.ReflectedType.IsDefined(type, true))) { Aspect.Directory.Add<T>(_method); }
+                    foreach (var _method in Aspect.Directory.Index<T>())
+                    {
+                        if (_method.IsDefined(type, true) || _method.DeclaringType.IsDefined(type, true))
+                        {
+                            Aspect.Directory.Add<T>(_method);
+                            continue;
+                        }
+                        var _property = _method.Property();
+                        if (_property == null) { continue; }
+                        if (_property.IsDefined(type, true)) { Aspect.Directory.Add<T>(_method); }
+                    }
                 }
             }
             else
             {
                 lock (Aspect.m_Resource)
                 {
-                    foreach (var _method in Aspect.Directory.Index<T>().Where(_Method => type.IsAssignableFrom(_Method.ReflectedType))) { Aspect.Directory.Add<T>(_method); }
+                    foreach (var _method in Aspect.Directory.Index<T>().Where(_Method => _Method.IsPublic && type.IsAssignableFrom(_Method.DeclaringType))) { Aspect.Directory.Add<T>(_method); }
                 }
             }
         }

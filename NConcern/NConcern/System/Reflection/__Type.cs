@@ -10,6 +10,10 @@ namespace System.Reflection
     [EditorBrowsable(EditorBrowsableState.Never)]
     static internal class __Type
     {
+        static private Resource m_Resource = new Resource();
+        static private Dictionary<Type, IEnumerable<MethodInfo>> m_Methods = new Dictionary<Type, IEnumerable<MethodInfo>>();
+        static private Dictionary<Type, IEnumerable<PropertyInfo>> m_Properties = new Dictionary<Type, IEnumerable<PropertyInfo>>();
+
         static public IEnumerable<Type> Base(this Type type)
         {
             for (var _type = type; _type != null; _type = _type.BaseType) { yield return _type; }
@@ -22,6 +26,30 @@ namespace System.Reflection
                 return string.Concat(type.FullName.Remove(type.FullName.IndexOf('`')), "<", string.Join(", ", type.GetGenericArguments().Select(__Type.Declaration)), ">");
             }
             return type.FullName;
+        }
+
+        static public IEnumerable<MethodInfo> Methods(this Type type)
+        {
+            IEnumerable<MethodInfo> _methods;
+            lock (__Type.m_Resource)
+            {
+                if (__Type.m_Methods.TryGetValue(type, out _methods)) { return _methods; }
+                _methods = new Collection<MethodInfo>(type.GetMethods(BindingFlags.Static | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.DeclaredOnly));
+                __Type.m_Methods.Add(type, _methods);
+                return _methods;
+            }
+        }
+
+        static public IEnumerable<PropertyInfo> Properties(this Type type)
+        {
+            IEnumerable<PropertyInfo> _properties;
+            lock (__Type.m_Resource)
+            {
+                if (__Type.m_Properties.TryGetValue(type, out _properties)) { return _properties; }
+                _properties = new Collection<PropertyInfo>(type.GetProperties(BindingFlags.Static | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.DeclaredOnly));
+                __Type.m_Properties.Add(type, _properties);
+                return _properties;
+            }
         }
     }
 }

@@ -95,5 +95,14 @@ namespace System.Reflection
             if (method.IsStatic) { return new Signature(method.GetParameters().Select(_Parameter => _Parameter.ParameterType)); }
             return new Signature(method.DeclaringType, method.GetParameters().Select(_Parameter => _Parameter.ParameterType));
         }
+
+        static public PropertyInfo Property(this MethodInfo method)
+        {
+            foreach (var _property in method.DeclaringType.Properties())
+            {
+                if (method == _property.GetGetMethod(true) || method == _property.GetSetMethod(true)) { return _property; }
+            }
+            return null;
+        }
     }
 }

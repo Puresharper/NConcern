@@ -79,7 +79,6 @@
     <Compile Include="System\Reflection\Emit\__ModuleBuilder.cs" />
     <Compile Include="System\Reflection\Metadata.cs" />
     <Compile Include="System\Reflection\Signature.cs" />
-    <Compile Include="System\Reflection\Virtualization.cs" />
     <Compile Include="System\Reflection\__AssemblyName.cs" />
     <Compile Include="System\Reflection\__MethodInfo.cs" />
     <Compile Include="System\Reflection\__ParameterInfo.cs" />

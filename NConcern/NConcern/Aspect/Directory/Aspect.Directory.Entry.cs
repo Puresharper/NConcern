@@ -64,7 +64,6 @@ namespace NConcern
                     _body.EmitCalli(OpCodes.Calli, CallingConventions.Standard, method.ReturnType, _signature, null);
                     _body.Emit(OpCodes.Ret);
                     _method.Prepare();
-                    System.Runtime.InteropServices.GCHandle.Alloc(_method);
                     switch (IntPtr.Size)
                     {
                         case 4:
