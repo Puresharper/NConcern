@@ -150,7 +150,10 @@ namespace NConcern
             {
                 lock (Aspect.m_Resource)
                 {
-                    foreach (var _method in Aspect.Directory.Index<T>().Where(_Method => _Method.IsPublic && type.IsAssignableFrom(_Method.DeclaringType))) { Aspect.Directory.Add<T>(_method); }
+                    foreach (var _method in Aspect.Directory.Index<T>())
+                    {
+                        if (_method.IsPublic && type.IsAssignableFrom(_method.DeclaringType)) { Aspect.Directory.Add<T>(_method); }
+                    }
                 }
             }
         }
@@ -189,14 +192,27 @@ namespace NConcern
             {
                 lock (Aspect.m_Resource)
                 {
-                    foreach (var _method in Aspect.Directory.Index().Where(_Method => _Method.IsDefined(type, true) || _Method.DeclaringType.IsDefined(type, true) || _Method.ReflectedType.IsDefined(type, true))) { Aspect.Directory.Remove(_method); }
+                    foreach (var _method in Aspect.Directory.Index())
+                    {
+                        if (_method.IsDefined(type, true) || _method.DeclaringType.IsDefined(type, true))
+                        {
+                            Aspect.Directory.Remove(_method);
+                            continue;
+                        }
+                        var _property = _method.Property();
+                        if (_property == null) { continue; }
+                        if (_property.IsDefined(type, true)) { Aspect.Directory.Remove(_method); }
+                    }
                 }
             }
             else
             {
                 lock (Aspect.m_Resource)
                 {
-                    foreach (var _method in Aspect.Directory.Index().Where(_Method => type.IsAssignableFrom(_Method.ReflectedType))) { Aspect.Directory.Remove(_method); }
+                    foreach (var _method in Aspect.Directory.Index())
+                    {
+                        if (_method.IsPublic && type.IsAssignableFrom(_method.DeclaringType)) { Aspect.Directory.Remove(_method); }
+                    }
                 }
             }
         }
@@ -254,14 +270,27 @@ namespace NConcern
             {
                 lock (Aspect.m_Resource)
                 {
-                    foreach (var _method in Aspect.Directory.Index<T>().Where(_Method => _Method.IsDefined(type, true) || _Method.DeclaringType.IsDefined(type, true) || _Method.ReflectedType.IsDefined(type, true))) { Aspect.Directory.Remove<T>(_method); }
+                    foreach (var _method in Aspect.Directory.Index<T>())
+                    {
+                        if (_method.IsDefined(type, true) || _method.DeclaringType.IsDefined(type, true))
+                        {
+                            Aspect.Directory.Remove<T>(_method);
+                            continue;
+                        }
+                        var _property = _method.Property();
+                        if (_property == null) { continue; }
+                        if (_property.IsDefined(type, true)) { Aspect.Directory.Remove<T>(_method); }
+                    }
                 }
             }
             else
             {
                 lock (Aspect.m_Resource)
                 {
-                    foreach (var _method in Aspect.Directory.Index<T>().Where(_Method => type.IsAssignableFrom(_Method.ReflectedType))) { Aspect.Directory.Remove<T>(_method); }
+                    foreach (var _method in Aspect.Directory.Index<T>())
+                    {
+                        if (_method.IsPublic && type.IsAssignableFrom(_method.DeclaringType)) { Aspect.Directory.Remove<T>(_method); }
+                    }
                 }
             }
         }
