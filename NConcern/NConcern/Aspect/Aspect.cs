@@ -48,6 +48,10 @@ namespace NConcern
             return Aspect.Compatible(method.DeclaringType);
         }
 
+        /// <summary>
+        /// Get all methods managed by at least one aspect.
+        /// </summary>
+        /// <returns>Enumerable of methods managed by at least one aspect</returns>
         static public IEnumerable<MethodInfo> Lookup()
         {
             lock (Aspect.m_Resource)
@@ -57,7 +61,7 @@ namespace NConcern
         }
 
         /// <summary>
-        /// Get all methods managed by an aspect.
+        /// Get all methods managed by the aspect.
         /// </summary>
         /// <typeparam name="T">Aspect</typeparam>
         /// <returns>Enumerable of methods managed by the aspect</returns>
@@ -112,6 +116,7 @@ namespace NConcern
                     if (_type.ContainsGenericParameters) { continue; }
                     foreach (var _method in _type.Methods())
                     {
+                        if (_method.IsAbstract) { continue; }
                         if (pattern(_method))
                         {
                             Aspect.Directory.Add<T>(_method);
@@ -131,31 +136,43 @@ namespace NConcern
         {
             if (Metadata<Attribute>.Type.IsAssignableFrom(type))
             {
-                lock (Aspect.m_Resource)
+                Aspect.Weave<T>(_Method =>
                 {
-                    foreach (var _method in Aspect.Directory.Index<T>())
+                    if (_Method.IsAbstract) { return false; }
+                    if (_Method.IsDefined(type, true) || _Method.DeclaringType.IsDefined(type, true)) { return true; }
+                    var _property = _Method.Property();
+                    if (_property != null && _property.IsDefined(type, true)) { return true; }
+                    var _method = _Method.GetBaseDefinition();
+                    if (_method.IsDefined(type, true) || _method.DeclaringType.IsDefined(type, true)) { return true; }
+                    _property = _method.Property();
+                    if (_property != null && _property.IsDefined(type, true)) { return true; }
+                    var _entry = _Method.DeclaringType.GetInterfaces().Select(_Interface => _Method.DeclaringType.GetInterfaceMap(_Interface)).SelectMany(_Map => _Map.TargetMethods.Zip(_Map.InterfaceMethods, (_Interface, _Implementation) => new { Interface = _Interface, Implementation = _Implementation })).FirstOrDefault(_Entry => _Entry.Implementation == _Method);
+                    if (_entry != null)
                     {
-                        if (_method.IsDefined(type, true) || _method.DeclaringType.IsDefined(type, true))
-                        {
-                            Aspect.Directory.Add<T>(_method);
-                            continue;
-                        }
-                        var _property = _method.Property();
-                        if (_property == null) { continue; }
-                        if (_property.IsDefined(type, true)) { Aspect.Directory.Add<T>(_method); }
+                        if (_entry.Interface.IsDefined(type, true) || _entry.Interface.DeclaringType.IsDefined(type, true)) { return true; }
+                        _property = _entry.Interface.Property();
+                        if (_property != null && _property.IsDefined(type, true)) { return true; }
                     }
-                }
+                    return false;
+                });
             }
-            else
+            else if (type.IsInterface)
             {
-                lock (Aspect.m_Resource)
+                Aspect.Weave<T>(_Method =>
                 {
-                    foreach (var _method in Aspect.Directory.Index<T>())
-                    {
-                        if (_method.IsPublic && type.IsAssignableFrom(_method.DeclaringType)) { Aspect.Directory.Add<T>(_method); }
-                    }
-                }
+                    if (type.IsAssignableFrom(_Method.DeclaringType)) { return _Method.DeclaringType.GetInterfaceMap(type).TargetMethods.Contains(_Method); }
+                    return false;
+                });
             }
+            else if (type.IsClass)
+            {
+                Aspect.Weave<T>(_Method =>
+                {
+                    if (_Method.IsPublic && type.IsAssignableFrom(_Method.DeclaringType)) { return true; }
+                    return false;
+                });
+            }
+            else { throw new NotSupportedException(); }
         }
 
         /// <summary>
@@ -190,31 +207,43 @@ namespace NConcern
         {
             if (Metadata<Attribute>.Type.IsAssignableFrom(type))
             {
-                lock (Aspect.m_Resource)
+                Aspect.Release(_Method =>
                 {
-                    foreach (var _method in Aspect.Directory.Index())
+                    if (_Method.IsAbstract) { return false; }
+                    if (_Method.IsDefined(type, true) || _Method.DeclaringType.IsDefined(type, true)) { return true; }
+                    var _property = _Method.Property();
+                    if (_property != null && _property.IsDefined(type, true)) { return true; }
+                    var _method = _Method.GetBaseDefinition();
+                    if (_method.IsDefined(type, true) || _method.DeclaringType.IsDefined(type, true)) { return true; }
+                    _property = _method.Property();
+                    if (_property != null && _property.IsDefined(type, true)) { return true; }
+                    var _entry = _Method.DeclaringType.GetInterfaces().Select(_Interface => _Method.DeclaringType.GetInterfaceMap(_Interface)).SelectMany(_Map => _Map.TargetMethods.Zip(_Map.InterfaceMethods, (_Interface, _Implementation) => new { Interface = _Interface, Implementation = _Implementation })).FirstOrDefault(_Entry => _Entry.Implementation == _Method);
+                    if (_entry != null)
                     {
-                        if (_method.IsDefined(type, true) || _method.DeclaringType.IsDefined(type, true))
-                        {
-                            Aspect.Directory.Remove(_method);
-                            continue;
-                        }
-                        var _property = _method.Property();
-                        if (_property == null) { continue; }
-                        if (_property.IsDefined(type, true)) { Aspect.Directory.Remove(_method); }
+                        if (_entry.Interface.IsDefined(type, true) || _entry.Interface.DeclaringType.IsDefined(type, true)) { return true; }
+                        _property = _entry.Interface.Property();
+                        if (_property != null && _property.IsDefined(type, true)) { return true; }
                     }
-                }
+                    return false;
+                });
             }
-            else
+            else if (type.IsInterface)
             {
-                lock (Aspect.m_Resource)
+                Aspect.Release(_Method =>
                 {
-                    foreach (var _method in Aspect.Directory.Index())
-                    {
-                        if (_method.IsPublic && type.IsAssignableFrom(_method.DeclaringType)) { Aspect.Directory.Remove(_method); }
-                    }
-                }
+                    if (type.IsAssignableFrom(_Method.DeclaringType)) { return _Method.DeclaringType.GetInterfaceMap(type).TargetMethods.Contains(_Method); }
+                    return false;
+                });
             }
+            else if (type.IsClass)
+            {
+                Aspect.Release(_Method =>
+                {
+                    if (_Method.IsPublic && type.IsAssignableFrom(_Method.DeclaringType)) { return true; }
+                    return false;
+                });
+            }
+            else { throw new NotSupportedException(); }
         }
 
         /// <summary>
@@ -268,31 +297,43 @@ namespace NConcern
         {
             if (Metadata<Attribute>.Type.IsAssignableFrom(type))
             {
-                lock (Aspect.m_Resource)
+                Aspect.Release<T>(_Method =>
                 {
-                    foreach (var _method in Aspect.Directory.Index<T>())
+                    if (_Method.IsAbstract) { return false; }
+                    if (_Method.IsDefined(type, true) || _Method.DeclaringType.IsDefined(type, true)) { return true; }
+                    var _property = _Method.Property();
+                    if (_property != null && _property.IsDefined(type, true)) { return true; }
+                    var _method = _Method.GetBaseDefinition();
+                    if (_method.IsDefined(type, true) || _method.DeclaringType.IsDefined(type, true)) { return true; }
+                    _property = _method.Property();
+                    if (_property != null && _property.IsDefined(type, true)) { return true; }
+                    var _entry = _Method.DeclaringType.GetInterfaces().Select(_Interface => _Method.DeclaringType.GetInterfaceMap(_Interface)).SelectMany(_Map => _Map.TargetMethods.Zip(_Map.InterfaceMethods, (_Interface, _Implementation) => new { Interface = _Interface, Implementation = _Implementation })).FirstOrDefault(_Entry => _Entry.Implementation == _Method);
+                    if (_entry != null)
                     {
-                        if (_method.IsDefined(type, true) || _method.DeclaringType.IsDefined(type, true))
-                        {
-                            Aspect.Directory.Remove<T>(_method);
-                            continue;
-                        }
-                        var _property = _method.Property();
-                        if (_property == null) { continue; }
-                        if (_property.IsDefined(type, true)) { Aspect.Directory.Remove<T>(_method); }
+                        if (_entry.Interface.IsDefined(type, true) || _entry.Interface.DeclaringType.IsDefined(type, true)) { return true; }
+                        _property = _entry.Interface.Property();
+                        if (_property != null && _property.IsDefined(type, true)) { return true; }
                     }
-                }
+                    return false;
+                });
             }
-            else
+            else if (type.IsInterface)
             {
-                lock (Aspect.m_Resource)
+                Aspect.Release<T>(_Method =>
                 {
-                    foreach (var _method in Aspect.Directory.Index<T>())
-                    {
-                        if (_method.IsPublic && type.IsAssignableFrom(_method.DeclaringType)) { Aspect.Directory.Remove<T>(_method); }
-                    }
-                }
+                    if (type.IsAssignableFrom(_Method.DeclaringType)) { return _Method.DeclaringType.GetInterfaceMap(type).TargetMethods.Contains(_Method); }
+                    return false;
+                });
             }
+            else if (type.IsClass)
+            {
+                Aspect.Release<T>(_Method =>
+                {
+                    if (_Method.IsPublic && type.IsAssignableFrom(_Method.DeclaringType)) { return true; }
+                    return false;
+                });
+            }
+            else { throw new NotSupportedException(); }
         }
     }
 }

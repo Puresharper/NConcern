@@ -31,6 +31,12 @@
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>NConcern.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -89,6 +95,9 @@
     <Compile Include="System\Runtime\Closure.Routine.cs" />
     <Compile Include="System\Singleton.cs" />
     <Compile Include="System\__AppDomain.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="NConcern.snk" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
