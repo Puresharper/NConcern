@@ -84,12 +84,12 @@ public class Logging : IAspect
 
 - Enable logging for services using implicit joinpoint
 ```
-Aspect.Weave<Logging>(services);
+Aspect.Weave<Logging>(typeof(OperationContractAttribute));
 ```
 
 - Disable logging for services using implicit joinpoint
 ```
-Aspect.Release<Logging>(services);
+Aspect.Release<Logging>(typeof(OperationContractAttribute));
 ```
 
 ## FAQ
