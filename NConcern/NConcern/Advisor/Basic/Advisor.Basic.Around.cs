@@ -131,5 +131,54 @@ namespace NConcern
                 return _method;
             });
         }
+
+        /// <summary>
+        /// Create an advice that runs before and after the advised method.
+        /// </summary>
+        /// <typeparam name="T">Resource to create before and dispose after method execution</typeparam>
+        /// <param name="basic">Basic</param>
+        /// <returns>Advice</returns>
+        static public IAdvice Around<T>(this Advisor.IBasic basic)
+            where T : class, IDisposable, new()
+        {
+            return new Advice((_Method, _Pointer) =>
+            {
+                var _type = _Method.ReturnType;
+                var _signature = _Method.Signature();
+                var _method = new DynamicMethod(string.Empty, _type, _signature, _Method.DeclaringType, true);
+                var _body = _method.GetILGenerator();
+                _body.DeclareLocal(Metadata<T>.Type);
+                if (_type == Metadata.Void)
+                {
+                    _body.BeginExceptionBlock();
+                    _body.Emit(OpCodes.Newobj, Metadata.Constructor(() => new T()));
+                    _body.Emit(OpCodes.Stloc_0);
+                    _body.Emit(_signature, false);
+                    _body.Emit(_Pointer, _Method.ReturnType, _signature);
+                    _body.BeginFinallyBlock();
+                    _body.Emit(OpCodes.Ldloc_0);
+                    _body.Emit(OpCodes.Callvirt, Metadata<IDisposable>.Method(_Disposable => _Disposable.Dispose()));
+                    _body.EndExceptionBlock();
+                }
+                else
+                {
+                    _body.DeclareLocal(_type);
+                    _body.BeginExceptionBlock();
+                    _body.Emit(OpCodes.Newobj, Metadata.Constructor(() => new T()));
+                    _body.Emit(OpCodes.Stloc_0);
+                    _body.Emit(_signature, false);
+                    _body.Emit(_Pointer, _Method.ReturnType, _signature);
+                    _body.Emit(OpCodes.Stloc_1);
+                    _body.BeginFinallyBlock();
+                    _body.Emit(OpCodes.Ldloc_0);
+                    _body.Emit(OpCodes.Callvirt, Metadata<IDisposable>.Method(_Disposable => _Disposable.Dispose()));
+                    _body.EndExceptionBlock();
+                    _body.Emit(OpCodes.Ldloc_1);
+                }
+                _body.Emit(OpCodes.Ret);
+                _method.Prepare();
+                return _method;
+            });
+        }
     }
 }
