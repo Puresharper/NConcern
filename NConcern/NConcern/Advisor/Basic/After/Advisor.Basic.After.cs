@@ -51,6 +51,16 @@ namespace NConcern
         }
 
         /// <summary>
+        /// After
+        /// </summary>
+        /// <param name="basic">Basic</param>
+        /// <returns>After</returns>
+        static public Advisor.Basic.IAfter After(this Advisor.IBasic basic)
+        {
+            return null;
+        }
+
+        /// <summary>
         /// Create an advice that runs after the advised method regardless of its outcome.
         /// </summary>
         /// <param name="basic">Basic</param>

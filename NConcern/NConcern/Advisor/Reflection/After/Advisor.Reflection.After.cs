@@ -51,6 +51,16 @@ namespace NConcern
         }
 
         /// <summary>
+        /// After
+        /// </summary>
+        /// <param name="reflection">Reflection</param>
+        /// <returns>After</returns>
+        static public Advisor.Reflection.IAfter After(this Advisor.IReflection reflection)
+        {
+            return null;
+        }
+
+        /// <summary>
         /// Create an advice that runs after the advised method regardless of its outcome.
         /// </summary>
         /// <param name="reflection">Reflection</param>

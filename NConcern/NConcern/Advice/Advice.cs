@@ -12,17 +12,17 @@ namespace NConcern
         /// <summary>
         /// Basic
         /// </summary>
-        static public readonly Advisor.IBasic Basic = new Advisor.Basic();
+        static public readonly Advisor.IBasic Basic = null;
 
         /// <summary>
         /// Linq
         /// </summary>
-        static public readonly Advisor.ILinq Linq = new Advisor.Linq();
+        static public readonly Advisor.ILinq Linq = null;
 
         /// <summary>
         /// Reflection
         /// </summary>
-        static public readonly Advisor.IReflection Reflection = new Advisor.Reflection();
+        static public readonly Advisor.IReflection Reflection = null;
 
         [DebuggerHidden]
         [Browsable(false)]

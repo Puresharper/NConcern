@@ -55,6 +55,16 @@ namespace NConcern
         }
 
         /// <summary>
+        /// After
+        /// </summary>
+        /// <param name="linq">Linq</param>
+        /// <returns>After</returns>
+        static public Advisor.Linq.IAfter After(this Advisor.ILinq linq)
+        {
+            return null;
+        }
+
+        /// <summary>
         /// Create an advice that runs after the advised method regardless of its outcome.
         /// </summary>
         /// <param name="linq">Linq</param>
