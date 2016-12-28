@@ -2,110 +2,227 @@
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Threading;
 
 namespace NConcern.Qualification.Basic
 {
     [TestClass]
     public class Before
     {
-        private class Action : IAspect
+        private class Interceptor : IAspect
         {
             public IEnumerable<IAdvice> Advise(MethodInfo method)
             {
                 yield return Advice.Basic.Before(() =>
                 {
+                    Interception.Sequence();
                     Interception.Done = true;
                 });
             }
-        }
 
-        private class ParameterizedAction : IAspect
-        {
-            public IEnumerable<IAdvice> Advise(MethodInfo method)
+            public class Parameterized : IAspect
             {
-                yield return Advice.Basic.Before((_Instance, _Arguments) =>
+                public IEnumerable<IAdvice> Advise(MethodInfo method)
                 {
-                    Interception.Done = true;
-                    Interception.Instance = _Instance;
-                    Interception.Arguments = _Arguments;
-                });
+                    yield return Advice.Basic.Before((_Instance, _Arguments) =>
+                    {
+                        Interception.Sequence();
+                        Interception.Done = true;
+                        Interception.Instance = _Instance;
+                        Interception.Arguments = _Arguments;
+                    });
+                }
             }
         }
 
         [TestMethod]
-        public void StaticMethodWithActionAdvice()
+        public void BasicBeforeStaticMethod()
         {
-            Interception.Initialize();
-            var _method = Metadata.Method(() => Calculator.Multiply(Argument<int>.Value, Argument<int>.Value));
-            Aspect.Weave<Before.Action>(_method);
-            var _return = Calculator.Multiply(2, 3);
-            Assert.AreEqual(_return, 6);
-            Assert.AreEqual(Interception.Done, true);
-            Aspect.Release<Before.Action>(_method);
+            lock (Interception.Handle)
+            {
+                var _method = Metadata.Method(() => Static.Method(Argument<int>.Value, Argument<int>.Value));
+                Interception.Initialize();
+                Static.Method(2, 3);
+                Assert.AreEqual(Interception.Done, false);
+                Aspect.Weave<Before.Interceptor>(_method);
+                Interception.Initialize();
+                var _return = Static.Method(2, 3);
+                Assert.AreEqual(_return, 1);
+                Assert.AreEqual(Interception.Done, true);
+                Aspect.Release<Before.Interceptor>(_method);
+                Interception.Initialize();
+                Static.Method(2, 3);
+                Assert.AreEqual(Interception.Done, false);
+            }
         }
 
         [TestMethod]
-        public void StaticMethodWithParameterizedActionAdvice()
+        public void BasicBeforeStaticMethodStateful()
         {
-            Interception.Initialize();
-            var _method = Metadata.Method(() => Calculator.Multiply(Argument<int>.Value, Argument<int>.Value));
-            Aspect.Weave<Before.ParameterizedAction>(_method);
-            var _return = Calculator.Multiply(2, 3);
-            Assert.AreEqual(_return, 6);
-            Assert.AreEqual(Interception.Done, true);
-            Assert.AreEqual(Interception.Instance, null);
-            Assert.AreEqual(Interception.Arguments.Length, 2);
-            Assert.AreEqual(Interception.Arguments[0], 2);
-            Assert.AreEqual(Interception.Arguments[1], 3);
-            Aspect.Release<Before.Action>(_method);
+            lock (Interception.Handle)
+            {
+                var _method = Metadata.Method(() => Static.Method(Argument<int>.Value, Argument<int>.Value));
+                Interception.Initialize();
+                Static.Method(2, 3);
+                Assert.AreEqual(Interception.Done, false);
+                Aspect.Weave<Before.Interceptor.Parameterized>(_method);
+                Interception.Initialize();
+                var _return = Static.Method(2, 3);
+                Assert.AreEqual(_return, 1);
+                Assert.AreEqual(Interception.Done, true);
+                Assert.AreEqual(Interception.Instance, null);
+                Assert.AreEqual(Interception.Arguments.Length, 2);
+                Assert.AreEqual(Interception.Arguments[0], 2);
+                Assert.AreEqual(Interception.Arguments[1], 3);
+                Aspect.Release<Before.Interceptor.Parameterized>(_method);
+                Interception.Initialize();
+                Static.Method(2, 3);
+                Assert.AreEqual(Interception.Done, false);
+            }
         }
 
         [TestMethod]
-        public void InstanceMethodWithActionAdvice()
+        public void BasicBeforeSealedMethod()
         {
-            Interception.Initialize();
+            lock (Interception.Handle)
+            {
+                var _method = Metadata<Sealed>.Method(_Instance => _Instance.Method(Argument<int>.Value, Argument<int>.Value));
+                var _instance = new Sealed();
+                Interception.Initialize();
+                _instance.Method(2, 3);
+                Assert.AreEqual(Interception.Done, false);
+                Aspect.Weave<Before.Interceptor>(_method);
+                Interception.Initialize();
+                var _return = _instance.Method(2, 3);
+                Assert.AreEqual(_return, 1);
+                Assert.AreEqual(Interception.Done, true);
+                Aspect.Release<Before.Interceptor>(_method);
+                Interception.Initialize();
+                _instance.Method(2, 3);
+                Assert.AreEqual(Interception.Done, false);
+            }
         }
 
         [TestMethod]
-        public void InstanceMethodWithParameterizedActionAdvice()
+        public void BasicBeforeSealedMethodStateful()
         {
-            Interception.Initialize();
+            lock (Interception.Handle)
+            {
+                var _method = Metadata<Sealed>.Method(_Instance => _Instance.Method(Argument<int>.Value, Argument<int>.Value));
+                var _instance = new Sealed();
+                Interception.Initialize();
+                _instance.Method(2, 3);
+                Assert.AreEqual(Interception.Done, false);
+                Aspect.Weave<Before.Interceptor.Parameterized>(_method);
+                Interception.Initialize();
+                var _return = _instance.Method(2, 3);
+                Assert.AreEqual(_return, 1);
+                Assert.AreEqual(Interception.Done, true);
+                Assert.AreEqual(Interception.Instance, _instance);
+                Assert.AreEqual(Interception.Arguments.Length, 2);
+                Assert.AreEqual(Interception.Arguments[0], 2);
+                Assert.AreEqual(Interception.Arguments[1], 3);
+                Aspect.Release<Before.Interceptor.Parameterized>(_method);
+                Interception.Initialize();
+                _instance.Method(2, 3);
+                Assert.AreEqual(Interception.Done, false);
+            }
         }
 
         [TestMethod]
-        public void VirtualMethodWithActionAdvice()
+        public void BasicBeforeVirtualMethod()
         {
-            Interception.Initialize();
+            lock (Interception.Handle)
+            {
+                var _method = Metadata<Virtual>.Method(_Instance => _Instance.Method(Argument<int>.Value, Argument<int>.Value));
+                var _instance = new Virtual();
+                Interception.Initialize();
+                _instance.Method(2, 3);
+                Assert.AreEqual(Interception.Done, false);
+                Aspect.Weave<Before.Interceptor>(_method);
+                Interception.Initialize();
+                var _return = _instance.Method(2, 3);
+                Assert.AreEqual(_return, 1);
+                Assert.AreEqual(Interception.Done, true);
+                Aspect.Release<Before.Interceptor>(_method);
+                Interception.Initialize();
+                _instance.Method(2, 3);
+                Assert.AreEqual(Interception.Done, false);
+            }
         }
 
         [TestMethod]
-        public void VirtualMethodWithParameterizedActionAdvice()
+        public void BasicBeforeVirtualMethodStateful()
         {
-            Interception.Initialize();
+            lock (Interception.Handle)
+            {
+                var _method = Metadata<Virtual>.Method(_Virtual => _Virtual.Method(Argument<int>.Value, Argument<int>.Value));
+                var _instance = new Virtual();
+                Interception.Initialize();
+                _instance.Method(2, 3);
+                Assert.AreEqual(Interception.Done, false);
+                Aspect.Weave<Before.Interceptor.Parameterized>(_method);
+                Interception.Initialize();
+                var _return = _instance.Method(2, 3);
+                Assert.AreEqual(_return, 1);
+                Assert.AreEqual(Interception.Done, true);
+                Assert.AreEqual(Interception.Instance, _instance);
+                Assert.AreEqual(Interception.Arguments.Length, 2);
+                Assert.AreEqual(Interception.Arguments[0], 2);
+                Assert.AreEqual(Interception.Arguments[1], 3);
+                Aspect.Release<Before.Interceptor.Parameterized>(_method);
+                Interception.Initialize();
+                _instance.Method(2, 3);
+                Assert.AreEqual(Interception.Done, false);
+            }
         }
 
         [TestMethod]
-        public void OverridenMethodWithActionAdvice()
+        public void BasicBeforeOverridenMethod()
         {
-            Interception.Initialize();
+            lock (Interception.Handle)
+            {
+                var _method = Metadata<Overriden>.Method(_Overriden => _Overriden.Method(Argument<int>.Value, Argument<int>.Value));
+                var _instance = new Overriden();
+                Interception.Initialize();
+                _instance.Method(2, 3);
+                Assert.AreEqual(Interception.Done, false);
+                Aspect.Weave<Before.Interceptor>(_method);
+                Interception.Initialize();
+                var _return = _instance.Method(2, 3);
+                Assert.AreEqual(_return, 1);
+                Assert.AreEqual(Interception.Done, true);
+                Aspect.Release<Before.Interceptor>(_method);
+                Interception.Initialize();
+                _instance.Method(2, 3);
+                Assert.AreEqual(Interception.Done, false);
+            }
         }
 
         [TestMethod]
-        public void OverridenMethodWithParameterizedActionAdvice()
+        public void BasicBeforeOverridenMethodStateful()
         {
-            Interception.Initialize();
-        }
-
-        [TestMethod]
-        public void SealedOverridenMethodWithActionAdvice()
-        {
-            Interception.Initialize();
-        }
-
-        [TestMethod]
-        public void SealedOverridenMethodWithParameterizedActionAdvice()
-        {
-            Interception.Initialize();
+            lock (Interception.Handle)
+            {
+                var _method = Metadata<Overriden>.Method(_Overriden => _Overriden.Method(Argument<int>.Value, Argument<int>.Value));
+                var _instance = new Overriden();
+                Interception.Initialize();
+                _instance.Method(2, 3);
+                Assert.AreEqual(Interception.Done, false);
+                Aspect.Weave<Before.Interceptor.Parameterized>(_method);
+                Interception.Initialize();
+                var _return = _instance.Method(2, 3);
+                Assert.AreEqual(_return, 1);
+                Assert.AreEqual(Interception.Done, true);
+                Assert.AreEqual(Interception.Instance, _instance);
+                Assert.AreEqual(Interception.Arguments.Length, 2);
+                Assert.AreEqual(Interception.Arguments[0], 2);
+                Assert.AreEqual(Interception.Arguments[1], 3);
+                Aspect.Release<Before.Interceptor.Parameterized>(_method);
+                Interception.Initialize();
+                _instance.Method(2, 3);
+                Assert.AreEqual(Interception.Done, false);
+            }
         }
     }
 }

@@ -53,10 +53,13 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Sealed.cs" />
+    <Compile Include="Virtual.cs" />
     <Compile Include="Basic\Before.cs" />
-    <Compile Include="Calculator.cs" />
+    <Compile Include="Overriden.cs" />
     <Compile Include="Interception.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Static.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Linq\" />
