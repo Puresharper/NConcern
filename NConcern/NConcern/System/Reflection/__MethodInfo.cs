@@ -48,6 +48,110 @@ namespace System.Reflection
         static private readonly OpCode[] m_Double = Initialization.Double();
         static private readonly Func<DynamicMethod, RuntimeMethodHandle> m_Handle = Delegate.CreateDelegate(Metadata<Func<DynamicMethod, RuntimeMethodHandle>>.Type, Metadata<DynamicMethod>.Type.GetMethod("GetMethodDescriptor", BindingFlags.Instance | BindingFlags.NonPublic)) as Func<DynamicMethod, RuntimeMethodHandle>;
 
+        static private IEnumerable<Instruction> Body(this MethodInfo method, byte[] buffer)
+        {
+            if (buffer == null) { yield break; }
+            var _authority = new Authority(method);
+            var _stream = new MemoryStream(buffer);
+            var _reader = new BinaryReader(_stream);
+            var _code = OpCodes.Nop;
+            while (_stream.Position < _stream.Length)
+            {
+                var _byte = _reader.ReadByte();
+                if (_byte != 0xFE) { _code = ___MethodInfo.m_Single[_byte]; }
+                else
+                {
+                    _byte = _reader.ReadByte();
+                    _code = ___MethodInfo.m_Double[_byte];
+                }
+                switch (_code.OperandType)
+                {
+                    case OperandType.InlineNone:
+                        yield return new Instruction(_code, null, null);
+                        break;
+                    case OperandType.ShortInlineBrTarget:
+                        yield return new Instruction<Label>(_code, _reader.ReadShortLabel());
+                        break;
+                    case OperandType.InlineBrTarget:
+                        yield return new Instruction<Label>(_code, _reader.ReadLabel());
+                        break;
+                    case OperandType.ShortInlineI:
+                        yield return new Instruction<byte>(_code, _reader.ReadByte());
+                        break;
+                    case OperandType.InlineI:
+                        yield return new Instruction<int>(_code, _reader.ReadInt32());
+                        break;
+                    case OperandType.InlineI8:
+                        yield return new Instruction<long>(_code, _reader.ReadInt64());
+                        break;
+                    case OperandType.ShortInlineR:
+                        yield return new Instruction<float>(_code, _reader.ReadSingle());
+                        break;
+                    case OperandType.InlineR:
+                        yield return new Instruction<double>(_code, _reader.ReadDouble());
+                        break;
+                    case OperandType.ShortInlineVar:
+                        yield return new Instruction<byte>(_code, _reader.ReadByte());
+                        break;
+                    case OperandType.InlineVar:
+                        yield return new Instruction<short>(_code, _reader.ReadInt16());
+                        break;
+                    case OperandType.InlineString:
+                        yield return new Instruction<string>(_code, _authority.String(_reader.ReadInt32()));
+                        break;
+                    case OperandType.InlineSig:
+                        yield return new Instruction<byte[]>(_code, _authority.Signature(_reader.ReadInt32()));
+                        break;
+                    case OperandType.InlineField:
+                        yield return new Instruction<FieldInfo>(_code, _authority.Field(_reader.ReadInt32(), method.DeclaringType == null ? new Type[0] : method.DeclaringType.GetGenericArguments(), method.IsGenericMethod ? method.GetGenericArguments() : new Type[0]));
+                        break;
+                    case OperandType.InlineMethod:
+                        var _method = _authority.Method(_reader.ReadInt32(), method.DeclaringType == null ? new Type[0] : method.DeclaringType.GetGenericArguments(), method.IsGenericMethod ? method.GetGenericArguments() : new Type[0]);
+                        if (_method is ConstructorInfo) { yield return new Instruction<ConstructorInfo>(_code, (ConstructorInfo)_method); }
+                        else { yield return new Instruction<MethodInfo>(_code, (MethodInfo)_method); }
+                        break;
+                    case OperandType.InlineType:
+                        yield return new Instruction<Type>(_code, _authority.Type(_reader.ReadInt32(), method.DeclaringType == null ? new Type[0] : method.DeclaringType.GetGenericArguments(), method.IsGenericMethod ? method.GetGenericArguments() : new Type[0]));
+                        break;
+                    case OperandType.InlineTok:
+                        var _member = (MemberInfo)_authority.Member(_reader.ReadInt32(), method.DeclaringType == null ? new Type[0] : method.DeclaringType.GetGenericArguments(), method.IsGenericMethod ? method.GetGenericArguments() : new Type[0]);
+                        if (_member is FieldInfo) { yield return new Instruction<FieldInfo>(_code, (FieldInfo)_member); }
+                        else if (_member is ConstructorInfo) { yield return new Instruction<ConstructorInfo>(_code, (ConstructorInfo)_member); }
+                        else if (_member is MethodInfo) { yield return new Instruction<MethodInfo>(_code, (MethodInfo)_member); }
+                        else if (_member is Type) { yield return new Instruction<Type>(_code, (Type)_member); }
+                        break;
+                    case OperandType.InlineSwitch:
+                        yield return new Instruction<Label[]>(OpCodes.Switch, Enumerable.Range(0, Convert.ToInt32(_reader.ReadUInt32())).Select(_Iterator => _reader.ReadLabel()).ToArray());
+                        break;
+                    default:
+                        throw new NotSupportedException();
+                }
+            }
+        }
+
+        static internal byte[] GetBodyAsByteArray(this MethodInfo method)
+        {
+            method.Prepare();
+            if (method is DynamicMethod) { return (method as DynamicMethod).GetILGenerator().GetILAsByteArray(); }
+            var _body = method.GetMethodBody();
+            return _body == null ? null : _body.GetILAsByteArray();
+        }
+
+        static internal byte[] GetILAsByteArray(this ILGenerator body)
+        {
+            var fiBytes = Metadata<ILGenerator>.Type.GetField("m_ILStream", BindingFlags.Instance | BindingFlags.NonPublic);
+            var fiLength = Metadata<ILGenerator>.Type.GetField("m_length", BindingFlags.Instance | BindingFlags.NonPublic);
+            var il = fiBytes.GetValue(body) as byte[];
+            var _buffer = new byte[(int)fiLength.GetValue(body)];
+            Array.Copy(il, _buffer, _buffer.Length);
+            return _buffer;
+        }
+
+        static public Collection<Instruction> Body(this MethodInfo method)
+        {
+            return new Collection<Instruction>(method.Body(method.GetBodyAsByteArray()));
+        }
+
         static public bool Attributed<T>(this MethodInfo method)
             where T : Attribute
         {

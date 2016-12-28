@@ -81,8 +81,12 @@
     <Compile Include="System\Linq\Expressions\Parameter.cs" />
     <Compile Include="System\Linq\Expressions\__LambdaExpression.cs" />
     <Compile Include="System\Reflection\Argument.cs" />
+    <Compile Include="System\Reflection\Authority.cs" />
+    <Compile Include="System\Reflection\Emit\__BinaryReader.cs" />
     <Compile Include="System\Reflection\Emit\__ILGenerator.cs" />
+    <Compile Include="System\Reflection\Emit\__Label.cs" />
     <Compile Include="System\Reflection\Emit\__ModuleBuilder.cs" />
+    <Compile Include="System\Reflection\Instruction.cs" />
     <Compile Include="System\Reflection\Metadata.cs" />
     <Compile Include="System\Reflection\Signature.cs" />
     <Compile Include="System\Reflection\__AssemblyName.cs" />
