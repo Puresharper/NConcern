@@ -6,8 +6,6 @@ namespace System.Reflection
     internal sealed class Authority
     {
         private delegate void Resolve(int token, out IntPtr type, out IntPtr method, out IntPtr field);
-        //private delegate string StringResolver(int token);
-        //private delegate byte[] SignatureResolver(int token, int fromMethod);
         private delegate Type GetTypeFromHandleUnsafe(IntPtr handle);
 
         private readonly MethodInfo method;
