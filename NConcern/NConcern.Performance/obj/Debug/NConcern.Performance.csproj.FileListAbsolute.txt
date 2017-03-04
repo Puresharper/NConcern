@@ -1,7 +1,0 @@
-D:\Github\Virtuoze\NConcern\NConcern\NConcern\NConcern.Performance\bin\Debug\NConcern.Performance.exe
-D:\Github\Virtuoze\NConcern\NConcern\NConcern\NConcern.Performance\bin\Debug\NConcern.Performance.pdb
-D:\Github\Virtuoze\NConcern\NConcern\NConcern\NConcern.Performance\bin\Debug\NConcern.dll
-D:\Github\Virtuoze\NConcern\NConcern\NConcern\NConcern.Performance\bin\Debug\NConcern.pdb
-D:\Github\Virtuoze\NConcern\NConcern\NConcern\NConcern.Performance\obj\Debug\NConcern.Performance.csprojResolveAssemblyReference.cache
-D:\Github\Virtuoze\NConcern\NConcern\NConcern\NConcern.Performance\obj\Debug\NConcern.Performance.exe
-D:\Github\Virtuoze\NConcern\NConcern\NConcern\NConcern.Performance\obj\Debug\NConcern.Performance.pdb
