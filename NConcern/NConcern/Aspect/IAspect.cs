@@ -15,6 +15,6 @@ namespace NConcern
         /// </summary>
         /// <param name="method">Method to advise</param>
         /// <returns>Enumerable of advices</returns>
-        IEnumerable<IAdvice> Advise(MethodInfo method);
+        IEnumerable<IAdvice> Advise(MethodBase method);
     }
 }

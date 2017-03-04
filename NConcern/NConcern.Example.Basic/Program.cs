@@ -10,7 +10,7 @@ namespace NConcern.Example.Basic
 {
     public class Logging : IAspect
     {
-        public IEnumerable<IAdvice> Advise(MethodInfo method)
+        public IEnumerable<IAdvice> Advise(MethodBase method)
         {
             yield return Advice.Basic.Around(new Func<object, object[], Func<object>, object>((_Instance, _Arguments, _Body) =>
             {
@@ -35,7 +35,7 @@ namespace NConcern.Example.Basic
         static void Main(string[] args)
         {
             //define a joinpoint
-            var _operationContractJoinpoint = new Func<MethodInfo, bool>(_Method => _Method.IsDefined(typeof(OperationContractAttribute), true));
+            var _operationContractJoinpoint = new Func<MethodBase, bool>(_Method => _Method.IsDefined(typeof(OperationContractAttribute), true));
 
             //instantiate a calculator
             var _calculator = new Calculator();

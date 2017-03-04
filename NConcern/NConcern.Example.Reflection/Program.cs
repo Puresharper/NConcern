@@ -2,18 +2,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
-using System.ServiceModel;
 using System.Reflection.Emit;
+using System.ServiceModel;
 using NConcern.Example.Logging;
 
 namespace NConcern.Example.Reflection
 {
     public class Logging : IAspect
     {
-        public IEnumerable<IAdvice> Advise(MethodInfo method)
+        public IEnumerable<IAdvice> Advise(MethodBase method)
         {
             var _parameters = method.GetParameters();
-            if (method.ReturnType == Metadata.Void)
+            var _type = method is MethodInfo ? (method as MethodInfo).ReturnType : Metadata.Void;
+            if (_type == Metadata.Void)
             {
                 yield return Advice.Reflection.Around((_ILGenerator, _Body) =>
                 {
@@ -22,7 +23,7 @@ namespace NConcern.Example.Reflection
                     _ILGenerator.Emit(OpCodes.Ldtoken, method);
                     _ILGenerator.Emit(OpCodes.Ldtoken, method.ReflectedType);
                     _ILGenerator.Emit(OpCodes.Call, Metadata.Method(() => MethodBase.GetMethodFromHandle(Argument<RuntimeMethodHandle>.Value, Argument<RuntimeTypeHandle>.Value)));
-                    _ILGenerator.Emit(OpCodes.Castclass, Metadata<MethodInfo>.Type);
+                    //_ILGenerator.Emit(OpCodes.Castclass, Metadata<MethodInfo>.Type);
                     _ILGenerator.Emit(OpCodes.Ldc_I4, _parameters.Length);
                     _ILGenerator.Emit(OpCodes.Newarr, Metadata<string>.Type);
                     for (var _index = 0; _index < _parameters.Length; _index++)
@@ -58,11 +59,11 @@ namespace NConcern.Example.Reflection
                 {
                     var _exception = _ILGenerator.DeclareLocal(Metadata<Exception>.Type);
                     var _trace = _ILGenerator.DeclareLocal(Metadata<Trace>.Type);
-                    var _return = _ILGenerator.DeclareLocal(method.ReturnType);
+                    var _return = _ILGenerator.DeclareLocal(_type);
                     _ILGenerator.Emit(OpCodes.Ldtoken, method);
                     _ILGenerator.Emit(OpCodes.Ldtoken, method.ReflectedType);
                     _ILGenerator.Emit(OpCodes.Call, Metadata.Method(() => MethodBase.GetMethodFromHandle(Argument<RuntimeMethodHandle>.Value, Argument<RuntimeTypeHandle>.Value)));
-                    _ILGenerator.Emit(OpCodes.Castclass, Metadata<MethodInfo>.Type);
+                    //_ILGenerator.Emit(OpCodes.Castclass, Metadata<MethodInfo>.Type);
                     _ILGenerator.Emit(OpCodes.Ldc_I4, _parameters.Length);
                     _ILGenerator.Emit(OpCodes.Newarr, Metadata<string>.Type);
                     for (var _index = 0; _index < _parameters.Length; _index++)
@@ -83,7 +84,7 @@ namespace NConcern.Example.Reflection
                     _ILGenerator.Emit(OpCodes.Stloc, _return);
                     _ILGenerator.Emit(OpCodes.Ldloc, _trace);
                     _ILGenerator.Emit(OpCodes.Ldloc, _return);
-                    if (method.ReturnType.IsValueType) { _ILGenerator.Emit(OpCodes.Box, method.ReturnType); }
+                    if (_type.IsValueType) { _ILGenerator.Emit(OpCodes.Box, _type); }
                     else { _ILGenerator.Emit(OpCodes.Castclass, Metadata<object>.Type); }
                     _ILGenerator.Emit(OpCodes.Callvirt, Metadata<object>.Method(_Object => _Object.ToString()));
                     _ILGenerator.Emit(OpCodes.Call, Metadata<Trace>.Method(_Trace => _Trace.Dispose(Argument<string>.Value)));
@@ -105,7 +106,7 @@ namespace NConcern.Example.Reflection
         static void Main(string[] args)
         {
             //define a joinpoint
-            var _operationContractJoinpoint = new Func<MethodInfo, bool>(_Method => _Method.IsDefined(typeof(OperationContractAttribute), true));
+            var _operationContractJoinpoint = new Func<MethodBase, bool>(_Method => _Method.IsDefined(typeof(OperationContractAttribute), true));
 
             //instantiate a calculator
             var _calculator = new Calculator();

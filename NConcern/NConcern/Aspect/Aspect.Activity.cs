@@ -10,17 +10,17 @@ namespace NConcern
         {
             internal readonly Activity Authority;
             public readonly Type Type;
-            public readonly MethodInfo Method;
+            public readonly MethodBase Method;
             public readonly Signature Signature;
-            internal readonly MethodInfo Implementation;
+            internal readonly MethodBase Implementation;
             internal readonly IntPtr Pointer;
 
-            public Activity(Type type, MethodInfo method)
+            public Activity(Type type, MethodBase method)
                 : this(null, type, method, method.Signature(), method)
             {
             }
 
-            public Activity(Activity authority, Type type, MethodInfo method, Signature signature, MethodInfo implementation)
+            public Activity(Activity authority, Type type, MethodBase method, Signature signature, MethodBase implementation)
             {
                 this.Authority = authority;
                 this.Type = type;
@@ -30,7 +30,7 @@ namespace NConcern
                 this.Pointer = implementation.Pointer();
             }
 
-            private Activity(Activity authority, MethodInfo method)
+            private Activity(Activity authority, MethodBase method)
                 : this(authority, authority.Type, authority.Method, authority.Signature, method)
             {
             }

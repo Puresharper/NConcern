@@ -11,7 +11,7 @@ namespace NConcern.Qualification.Basic
     {
         private class Interceptor : IAspect
         {
-            public IEnumerable<IAdvice> Advise(MethodInfo method)
+            public IEnumerable<IAdvice> Advise(MethodBase method)
             {
                 yield return Advice.Basic.Before(() =>
                 {
@@ -22,7 +22,7 @@ namespace NConcern.Qualification.Basic
 
             public class Parameterized : IAspect
             {
-                public IEnumerable<IAdvice> Advise(MethodInfo method)
+                public IEnumerable<IAdvice> Advise(MethodBase method)
                 {
                     yield return Advice.Basic.Before((_Instance, _Arguments) =>
                     {

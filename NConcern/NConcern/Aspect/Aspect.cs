@@ -43,7 +43,7 @@ namespace NConcern
             return Aspect.Compatible(type.Assembly);
         }
 
-        static private bool Compatible(MethodInfo method)
+        static private bool Compatible(MethodBase method)
         {
             return Aspect.Compatible(method.DeclaringType);
         }
@@ -52,7 +52,7 @@ namespace NConcern
         /// Get all methods managed by at least one aspect.
         /// </summary>
         /// <returns>Enumerable of methods managed by at least one aspect</returns>
-        static public IEnumerable<MethodInfo> Lookup()
+        static public IEnumerable<MethodBase> Lookup()
         {
             lock (Aspect.m_Resource)
             {
@@ -65,7 +65,7 @@ namespace NConcern
         /// </summary>
         /// <typeparam name="T">Aspect</typeparam>
         /// <returns>Enumerable of methods managed by the aspect</returns>
-        static public IEnumerable<MethodInfo> Lookup<T>()
+        static public IEnumerable<MethodBase> Lookup<T>()
             where T : class, IAspect, new()
         {
             lock (Aspect.m_Resource)
@@ -106,7 +106,7 @@ namespace NConcern
         /// </summary>
         /// <typeparam name="T">Aspect</typeparam>
         /// <param name="pattern">Pattern</param>
-        static public void Weave<T>(Func<MethodInfo, bool> pattern)
+        static public void Weave<T>(Func<MethodBase, bool> pattern)
             where T : class, IAspect, new()
         {
             lock (Aspect.m_Resource)
@@ -179,7 +179,7 @@ namespace NConcern
         /// Release all aspects from a specific method.
         /// </summary>
         /// <param name="method">Method</param>
-        static public void Release(MethodInfo method)
+        static public void Release(MethodBase method)
         {
             lock (Aspect.m_Resource)
             {
@@ -191,7 +191,7 @@ namespace NConcern
         /// Release all aspects from methods matching with a specific pettern.
         /// </summary>
         /// <param name="pattern">Pattern</param>
-        static public void Release(Func<MethodInfo, bool> pattern)
+        static public void Release(Func<MethodBase, bool> pattern)
         {
             lock (Aspect.m_Resource)
             {
@@ -264,7 +264,7 @@ namespace NConcern
         /// </summary>
         /// <typeparam name="T">Aspect</typeparam>
         /// <param name="method">Method</param>
-        static public void Release<T>(MethodInfo method)
+        static public void Release<T>(MethodBase method)
             where T : class, IAspect, new()
         {
             lock (Aspect.m_Resource)
@@ -278,7 +278,7 @@ namespace NConcern
         /// </summary>
         /// <typeparam name="T">Aspect</typeparam>
         /// <param name="pattern">Pattern</param>
-        static public void Release<T>(Func<MethodInfo, bool> pattern)
+        static public void Release<T>(Func<MethodBase, bool> pattern)
             where T : class, IAspect, new()
         {
             lock (Aspect.m_Resource)

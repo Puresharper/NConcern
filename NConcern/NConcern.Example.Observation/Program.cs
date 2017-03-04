@@ -9,9 +9,9 @@ namespace NConcern.Example.Observation
     {
         public class Argument : EventArgs
         {
-            public readonly MethodInfo Method;
+            public readonly MethodBase Method;
 
-            public Argument(MethodInfo method)
+            public Argument(MethodBase method)
             {
                 this.Method = method;
             }
@@ -24,7 +24,7 @@ namespace NConcern.Example.Observation
 
         static public event EventHandler<Argument> Method;
 
-        public IEnumerable<IAdvice> Advise(MethodInfo method)
+        public IEnumerable<IAdvice> Advise(MethodBase method)
         {
             yield return Advice.Basic.After((_Instance, _Arguments) =>
             {

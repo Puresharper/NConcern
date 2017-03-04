@@ -11,11 +11,12 @@ namespace NConcern.Example.Linq
 {
     public class Logging : IAspect
     {
-        public IEnumerable<IAdvice> Advise(MethodInfo method)
+        public IEnumerable<IAdvice> Advise(MethodBase method)
         {
             var _trace = Expression.Parameter(Metadata<Trace>.Type);
             var _exception = Expression.Parameter(Metadata<Exception>.Type);
-            if (method.ReturnType == Metadata.Void)
+            var _type = method is MethodInfo ? (method as MethodInfo).ReturnType : Metadata.Void;
+            if (_type == Metadata.Void)
             {
                 yield return Advice.Linq.Around((_Instance, _Arguments, _Body) =>
                 {
@@ -51,7 +52,7 @@ namespace NConcern.Example.Linq
             }
             else
             {
-                var _return = Expression.Parameter(method.ReturnType);
+                var _return = Expression.Parameter(_type);
                 yield return Advice.Linq.Around((_Instance, _Arguments, _Body) =>
                 {
                     return Expression.Block
@@ -81,7 +82,7 @@ namespace NConcern.Example.Linq
                                 Expression.Block
                                 (
                                     Expression.Call(_trace, Metadata<Trace>.Method(_Trace => _Trace.Dispose(Argument<Exception>.Value)), _exception),
-                                    Expression.Rethrow(method.ReturnType)
+                                    Expression.Rethrow(_type)
                                 )
                             )
                         )
@@ -96,7 +97,7 @@ namespace NConcern.Example.Linq
         static void Main(string[] args)
         {
             //define a joinpoint
-            var _operationContractJoinpoint = new Func<MethodInfo, bool>(_Method => _Method.IsDefined(typeof(OperationContractAttribute), true));
+            var _operationContractJoinpoint = new Func<MethodBase, bool>(_Method => _Method.IsDefined(typeof(OperationContractAttribute), true));
 
             //instantiate a calculator
             var _calculator = new Calculator();

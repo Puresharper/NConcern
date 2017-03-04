@@ -14,6 +14,6 @@ namespace NConcern
         /// <param name="method">Base method to decorate</param>
         /// <param name="pointer">Pointer to base method</param>
         /// <returns>Replacing method</returns>
-        MethodInfo Decorate(MethodInfo method, IntPtr pointer);
+        MethodBase Decorate(MethodBase method, IntPtr pointer);
     }
 }

@@ -16,7 +16,7 @@ namespace NConcern
         {
             return new Advice((_Method, _Pointer) =>
             {
-                var _type = _Method.ReturnType;
+                var _type = _Method.Type();
                 var _signature = _Method.Signature();
                 var _method = new DynamicMethod(string.Empty, _type, _signature, _Method.DeclaringType, true);
                 var _body = _method.GetILGenerator();
@@ -24,7 +24,7 @@ namespace NConcern
                 {
                     _body.BeginExceptionBlock();
                     _body.Emit(_signature, false);
-                    _body.Emit(_Pointer, _Method.ReturnType, _signature);
+                    _body.Emit(_Pointer, _type, _signature);
                     _body.BeginCatchBlock(Metadata<Exception>.Type);
                     _body.Emit(OpCodes.Pop);
                     if (advice.Target != null) { _body.Emit(OpCodes.Ldsfld, Advisor.Module.DefineField(advice.Target)); }
@@ -37,7 +37,7 @@ namespace NConcern
                     _body.DeclareLocal(_type);
                     _body.BeginExceptionBlock();
                     _body.Emit(_signature, false);
-                    _body.Emit(_Pointer, _Method.ReturnType, _signature);
+                    _body.Emit(_Pointer, _type, _signature);
                     _body.Emit(OpCodes.Stloc_0);
                     _body.BeginCatchBlock(Metadata<Exception>.Type);
                     _body.Emit(OpCodes.Pop);
@@ -64,14 +64,14 @@ namespace NConcern
             return new Advice((_Method, _Pointer) =>
             {
                 var _signature = _Method.Signature();
-                var _type = _Method.ReturnType;
+                var _type = _Method.Type();
                 var _method = new DynamicMethod(string.Empty, _type, _signature, _Method.DeclaringType, true);
                 var _body = _method.GetILGenerator();
                 if (_type == Metadata.Void)
                 {
                     _body.BeginExceptionBlock();
                     _body.Emit(_signature, false);
-                    _body.Emit(_Pointer, _Method.ReturnType, _signature);
+                    _body.Emit(_Pointer, _type, _signature);
                     _body.BeginCatchBlock(Metadata<Exception>.Type);
                     _body.Emit(OpCodes.Pop);
                     if (advice.Target != null) { _body.Emit(OpCodes.Ldsfld, Advisor.Module.DefineField(advice.Target)); }
@@ -85,7 +85,7 @@ namespace NConcern
                     _body.DeclareLocal(_type);
                     _body.BeginExceptionBlock();
                     _body.Emit(_signature, false);
-                    _body.Emit(_Pointer, _Method.ReturnType, _signature);
+                    _body.Emit(_Pointer, _type, _signature);
                     _body.Emit(OpCodes.Stloc_0);
                     _body.BeginCatchBlock(Metadata<Exception>.Type);
                     _body.Emit(OpCodes.Pop);
@@ -113,7 +113,7 @@ namespace NConcern
             return new Advice((_Method, _Pointer) =>
             {
                 var _signature = _Method.Signature();
-                var _type = _Method.ReturnType;
+                var _type = _Method.Type();
                 var _method = new DynamicMethod(string.Empty, _type, _signature, _Method.DeclaringType, true);
                 var _body = _method.GetILGenerator();
                 _body.DeclareLocal(Metadata<Exception>.Type);
@@ -121,7 +121,7 @@ namespace NConcern
                 {
                     _body.BeginExceptionBlock();
                     _body.Emit(_signature, false);
-                    _body.Emit(_Pointer, _Method.ReturnType, _signature);
+                    _body.Emit(_Pointer, _type, _signature);
                     _body.BeginCatchBlock(Metadata<Exception>.Type);
                     _body.Emit(OpCodes.Stloc_0);
                     if (advice.Target != null) { _body.Emit(OpCodes.Ldsfld, Advisor.Module.DefineField(advice.Target)); }
@@ -136,7 +136,7 @@ namespace NConcern
                     _body.DeclareLocal(_type);
                     _body.BeginExceptionBlock();
                     _body.Emit(_signature, false);
-                    _body.Emit(_Pointer, _Method.ReturnType, _signature);
+                    _body.Emit(_Pointer, _type, _signature);
                     _body.Emit(OpCodes.Stloc_1);
                     _body.BeginCatchBlock(Metadata<Exception>.Type);
                     _body.Emit(OpCodes.Stloc_0);

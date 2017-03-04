@@ -77,14 +77,14 @@ namespace NConcern
                 var _signature = _Method.Signature();
                 if (advice == null) { return _Method; }
                 if (advice.Type != Metadata.Void) { throw new NotSupportedException(); }
-                var _type = _Method.ReturnType;
+                var _type = _Method.Type();
                 var _method = new DynamicMethod(string.Empty, _type, _signature, _Method.DeclaringType, true);
                 var _body = _method.GetILGenerator();
                 if (_type == Metadata.Void)
                 {
                     _body.BeginExceptionBlock();
                     _body.Emit(_signature, false);
-                    _body.Emit(_Pointer, _Method.ReturnType, _signature);
+                    _body.Emit(_Pointer, _type, _signature);
                     _body.BeginFinallyBlock();
                     _body.Emit(OpCodes.Call, Expression.Lambda(advice).CompileToMethod());
                     _body.EndExceptionBlock();
@@ -94,7 +94,7 @@ namespace NConcern
                     _body.DeclareLocal(_type);
                     _body.BeginExceptionBlock();
                     _body.Emit(_signature, false);
-                    _body.Emit(_Pointer, _Method.ReturnType, _signature);
+                    _body.Emit(_Pointer, _type, _signature);
                     _body.Emit(OpCodes.Stloc_0);
                     _body.BeginFinallyBlock();
                     _body.Emit(OpCodes.Call, Expression.Lambda(advice).CompileToMethod());
@@ -122,14 +122,14 @@ namespace NConcern
                 var _advice = _signature.Instance == null ? advice(null, _parameters) : advice(_parameters[0], _parameters.Skip(1));
                 if (_advice == null) { return _Method; }
                 if (_advice.Type != Metadata.Void) { throw new NotSupportedException(); }
-                var _type = _Method.ReturnType;
+                var _type = _Method.Type();
                 var _method = new DynamicMethod(string.Empty, _type, _signature, _Method.DeclaringType, true);
                 var _body = _method.GetILGenerator();
                 if (_type == Metadata.Void)
                 {
                     _body.BeginExceptionBlock();
                     _body.Emit(_signature, false);
-                    _body.Emit(_Pointer, _Method.ReturnType, _signature);
+                    _body.Emit(_Pointer, _type, _signature);
                     _body.BeginFinallyBlock();
                     _body.Emit(_signature, false);
                     _body.Emit(OpCodes.Call, Expression.Lambda(_advice, _parameters).CompileToMethod());
@@ -140,7 +140,7 @@ namespace NConcern
                     _body.DeclareLocal(_type);
                     _body.BeginExceptionBlock();
                     _body.Emit(_signature, false);
-                    _body.Emit(_Pointer, _Method.ReturnType, _signature);
+                    _body.Emit(_Pointer, _type, _signature);
                     _body.Emit(OpCodes.Stloc_0);
                     _body.BeginFinallyBlock();
                     _body.Emit(_signature, false);

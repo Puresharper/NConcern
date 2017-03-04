@@ -12,28 +12,28 @@ namespace NConcern
         {
             internal sealed class Patcher : ExpressionVisitor
             {
-                static private MethodInfo Method(MethodInfo method, IntPtr pointer)
+                static private MethodInfo Method(MethodBase method, IntPtr pointer)
                 {
-                    var _type = method.ReturnType;
+                    var _type = method.Type();
                     var _signature = method.Signature();
                     var _method = new DynamicMethod(string.Empty, _type, _signature, method.DeclaringType, true);
                     var _body = _method.GetILGenerator();
                     _body.Emit(_signature, false);
-                    _body.Emit(pointer, method.ReturnType, _signature);
+                    _body.Emit(pointer, _type, _signature);
                     _body.Emit(OpCodes.Ret);
                     _method.Prepare();
                     return _method;
                 }
 
-                static public Expression Patch(Expression expression, MethodInfo method, IntPtr pointer)
+                static public Expression Patch(Expression expression, MethodBase method, IntPtr pointer)
                 {
-                    return new Patcher(method, pointer).Visit(expression);
+                    return new Advisor.Linq.Patcher(method, pointer).Visit(expression);
                 }
 
-                private readonly MethodInfo m_Method;
+                private readonly MethodBase m_Method;
                 private readonly IntPtr m_Pointer;
 
-                private Patcher(MethodInfo method, IntPtr pointer)
+                private Patcher(MethodBase method, IntPtr pointer)
                 {
                     this.m_Method = method;
                     this.m_Pointer = pointer;

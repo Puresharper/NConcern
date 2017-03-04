@@ -40,13 +40,13 @@ namespace NConcern
             return object.ReferenceEquals(left, right);
         }
 
-        private readonly Func<MethodInfo, IntPtr, MethodInfo> m_Decorate;
+        private readonly Func<MethodBase, IntPtr, MethodBase> m_Decorate;
 
         /// <summary>
         /// Create an advice, a way to decorate.
         /// </summary>
-        /// <param name="decorate">Delegate use to decorate a method : Func(MethodInfo = [base method to decorate], IntPtr = [pointer to base method]) return replacing method</param>
-        public Advice(Func<MethodInfo, IntPtr, MethodInfo> decorate)
+        /// <param name="decorate">Delegate use to decorate a method : Func(MethodBase = [base method to decorate], IntPtr = [pointer to base method]) return replacing method</param>
+        public Advice(Func<MethodBase, IntPtr, MethodBase> decorate)
         {
             this.m_Decorate = decorate;
         }
@@ -54,19 +54,19 @@ namespace NConcern
         /// <summary>
         /// Create an advice, a way to decorate.
         /// </summary>
-        /// <param name="decorate">Delegate use to decorate a method : Func(MethodInfo = [base method to decorate]) return replacing method</param>
-        public Advice(Func<MethodInfo, MethodInfo> decorate)
+        /// <param name="decorate">Delegate use to decorate a method : Func(MethodBase = [base method to decorate]) return replacing method</param>
+        public Advice(Func<MethodBase, MethodBase> decorate)
         {
-            this.m_Decorate = new Func<MethodInfo, IntPtr, MethodInfo>((_Method, _Pointer) => decorate(_Method));
+            this.m_Decorate = new Func<MethodBase, IntPtr, MethodBase>((_Method, _Pointer) => decorate(_Method));
         }
 
         /// <summary>
         /// Create an advice with a specific replacing method.
         /// </summary>
         /// <param name="method">Replacing method</param>
-        public Advice(MethodInfo method)
+        public Advice(MethodBase method)
         {
-            this.m_Decorate = new Func<MethodInfo, IntPtr, MethodInfo>((_Method, _Pointer) => method);
+            this.m_Decorate = new Func<MethodBase, IntPtr, MethodBase>((_Method, _Pointer) => method);
         }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace NConcern
         /// <param name="method">Base method to decorate</param>
         /// <param name="pointer">Pointer to base method</param>
         /// <returns>Replacing method</returns>
-        public MethodInfo Decorate(MethodInfo method, IntPtr pointer)
+        public MethodBase Decorate(MethodBase method, IntPtr pointer)
         {
             return this.m_Decorate(method, pointer);
         }

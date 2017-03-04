@@ -20,13 +20,13 @@ namespace NConcern
         {
             return new Advice((_Method, _Pointer) =>
             {
-                var _type = _Method.ReturnType;
+                var _type = _Method.Type();
                 var _signature = _Method.Signature();
                 var _parameters = new Collection<ParameterExpression>(_signature.Select(_Type => Expression.Parameter(_Type)).ToArray());
                 var _method = new DynamicMethod(string.Empty, _type, _signature, _Method.DeclaringType, true);
                 var _body = _method.GetILGenerator();
                 _body.Emit(_signature, false);
-                _body.Emit(_Pointer, _Method.ReturnType, _signature);
+                _body.Emit(_Pointer, _type, _signature);
                 _body.Emit(OpCodes.Ret);
                 var _advice = _signature.Instance == null ? advice(Expression.Call(_method, _parameters)) : advice(Expression.Call(_method, _parameters));
                 if (_advice == null) { return _Method; }
@@ -50,7 +50,7 @@ namespace NConcern
         {
             return new Advice((_Method, _Pointer) =>
             {
-                var _type = _Method.ReturnType;
+                var _type = _Method.Type();
                 var _signature = _Method.Signature();
                 var _parameters = new Collection<ParameterExpression>(_signature.Select(_Type => Expression.Parameter(_Type)).ToArray());
                 var _advice = _signature.Instance == null ? advice(null, _parameters) : advice(_parameters[0], _parameters.Skip(1));
@@ -75,13 +75,13 @@ namespace NConcern
         {
             return new Advice((_Method, _Pointer) =>
             {
-                var _type = _Method.ReturnType;
+                var _type = _Method.Type();
                 var _signature = _Method.Signature();
                 var _parameters = new Collection<ParameterExpression>(_signature.Select(_Type => Expression.Parameter(_Type)).ToArray());
                 var _method = new DynamicMethod(string.Empty, _type, _signature, _Method.DeclaringType, true);
                 var _body = _method.GetILGenerator();
                 _body.Emit(_signature, false);
-                _body.Emit(_Pointer, _Method.ReturnType, _signature);
+                _body.Emit(_Pointer, _type, _signature);
                 _body.Emit(OpCodes.Ret);
                 var _advice = _signature.Instance == null ? advice(null, _parameters, Expression.Call(_method, _parameters)) : advice(_parameters[0], _parameters.Skip(1), Expression.Call(_method, _parameters));
                 if (_advice == null) { return _Method; }

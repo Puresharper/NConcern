@@ -18,9 +18,9 @@ namespace NConcern
         {
             return new Advice((_Method, _Pointer) =>
             {
-                var _type = _Method.ReturnType;
+                var _type = _Method.Type();
                 var _signature = _Method.Signature();
-                var _routine = new Closure.Routine(_Pointer, _signature, _Method.ReturnType);
+                var _routine = new Closure.Routine(_Pointer, _signature, _type);
                 var _method = new DynamicMethod(string.Empty, _type, _signature, _Method.DeclaringType, true);
                 var _body = _method.GetILGenerator();
                 if (_type == Metadata.Void)
@@ -62,9 +62,9 @@ namespace NConcern
         {
             return new Advice((_Method, _Pointer) =>
             {
-                var _type = _Method.ReturnType;
+                var _type = _Method.Type();
                 var _signature = _Method.Signature();
-                var _routine = new Closure.Routine(_Pointer, _signature, _Method.ReturnType);
+                var _routine = new Closure.Routine(_Pointer, _signature, _type);
                 var _method = new DynamicMethod(string.Empty, _type, _signature, _Method.DeclaringType, true);
                 var _body = _method.GetILGenerator();
                 if (_type == Metadata.Void)
@@ -108,9 +108,9 @@ namespace NConcern
         {
             return new Advice((_Method, _Pointer) =>
             {
-                var _type = _Method.ReturnType;
+                var _type = _Method.Type();
                 var _signature = _Method.Signature();
-                var _function = new Closure.Function(_Pointer, _signature, _Method.ReturnType);
+                var _function = new Closure.Function(_Pointer, _signature, _type);
                 var _method = new DynamicMethod(string.Empty, _type, _signature, _Method.DeclaringType, true);
                 var _body = _method.GetILGenerator();
                 if (advice.Target != null) { _body.Emit(OpCodes.Ldsfld, Advisor.Module.DefineField(advice.Target)); }
@@ -143,7 +143,7 @@ namespace NConcern
         {
             return new Advice((_Method, _Pointer) =>
             {
-                var _type = _Method.ReturnType;
+                var _type = _Method.Type();
                 var _signature = _Method.Signature();
                 var _method = new DynamicMethod(string.Empty, _type, _signature, _Method.DeclaringType, true);
                 var _body = _method.GetILGenerator();
@@ -154,7 +154,7 @@ namespace NConcern
                     _body.Emit(OpCodes.Newobj, Metadata.Constructor(() => new T()));
                     _body.Emit(OpCodes.Stloc_0);
                     _body.Emit(_signature, false);
-                    _body.Emit(_Pointer, _Method.ReturnType, _signature);
+                    _body.Emit(_Pointer, _type, _signature);
                     _body.BeginFinallyBlock();
                     _body.Emit(OpCodes.Ldloc_0);
                     _body.Emit(OpCodes.Callvirt, Metadata<IDisposable>.Method(_Disposable => _Disposable.Dispose()));
@@ -167,7 +167,7 @@ namespace NConcern
                     _body.Emit(OpCodes.Newobj, Metadata.Constructor(() => new T()));
                     _body.Emit(OpCodes.Stloc_0);
                     _body.Emit(_signature, false);
-                    _body.Emit(_Pointer, _Method.ReturnType, _signature);
+                    _body.Emit(_Pointer, _type, _signature);
                     _body.Emit(OpCodes.Stloc_1);
                     _body.BeginFinallyBlock();
                     _body.Emit(OpCodes.Ldloc_0);

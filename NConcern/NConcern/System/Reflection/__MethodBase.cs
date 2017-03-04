@@ -14,7 +14,7 @@ namespace System.Reflection
 {
     [Browsable(false)]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    static internal class ___MethodInfo
+    static internal class __MethodBase
     {
         static private class Initialization
         {
@@ -48,7 +48,7 @@ namespace System.Reflection
         static private readonly OpCode[] m_Double = Initialization.Double();
         static private readonly Func<DynamicMethod, RuntimeMethodHandle> m_Handle = Delegate.CreateDelegate(Metadata<Func<DynamicMethod, RuntimeMethodHandle>>.Type, Metadata<DynamicMethod>.Type.GetMethod("GetMethodDescriptor", BindingFlags.Instance | BindingFlags.NonPublic)) as Func<DynamicMethod, RuntimeMethodHandle>;
 
-        static private IEnumerable<Instruction> Body(this MethodInfo method, byte[] buffer)
+        static private IEnumerable<Instruction> Body(this MethodBase method, byte[] buffer)
         {
             if (buffer == null) { yield break; }
             var _authority = new Authority(method);
@@ -58,11 +58,11 @@ namespace System.Reflection
             while (_stream.Position < _stream.Length)
             {
                 var _byte = _reader.ReadByte();
-                if (_byte != 0xFE) { _code = ___MethodInfo.m_Single[_byte]; }
+                if (_byte != 0xFE) { _code = __MethodBase.m_Single[_byte]; }
                 else
                 {
                     _byte = _reader.ReadByte();
-                    _code = ___MethodInfo.m_Double[_byte];
+                    _code = __MethodBase.m_Double[_byte];
                 }
                 switch (_code.OperandType)
                 {
@@ -129,7 +129,7 @@ namespace System.Reflection
             }
         }
 
-        static internal byte[] GetBodyAsByteArray(this MethodInfo method)
+        static internal byte[] GetBodyAsByteArray(this MethodBase method)
         {
             method.Prepare();
             if (method is DynamicMethod) { return (method as DynamicMethod).GetILGenerator().GetILAsByteArray(); }
@@ -147,40 +147,40 @@ namespace System.Reflection
             return _buffer;
         }
 
-        static public Collection<Instruction> Body(this MethodInfo method)
+        static public Collection<Instruction> Body(this MethodBase method)
         {
             return new Collection<Instruction>(method.Body(method.GetBodyAsByteArray()));
         }
 
-        static public bool Attributed<T>(this MethodInfo method)
+        static public bool Attributed<T>(this MethodBase method)
             where T : Attribute
         {
             return System.Attribute.IsDefined(method, Metadata<T>.Type);
         }
 
-        static public T Attribute<T>(this MethodInfo method)
+        static public T Attribute<T>(this MethodBase method)
             where T : Attribute
         {
             return System.Attribute.GetCustomAttribute(method, Metadata<T>.Type) as T;
         }
 
-        static public IEnumerable<T> Attributes<T>(this MethodInfo method)
+        static public IEnumerable<T> Attributes<T>(this MethodBase method)
             where T : Attribute
         {
             return System.Attribute.GetCustomAttributes(method, Metadata<T>.Type).Cast<T>();
         }
 
-        static public RuntimeMethodHandle Handle(this MethodInfo method)
+        static public RuntimeMethodHandle Handle(this MethodBase method)
         {
-            return method is DynamicMethod ? ___MethodInfo.m_Handle(method as DynamicMethod) : method.MethodHandle;
+            return method is DynamicMethod ? __MethodBase.m_Handle(method as DynamicMethod) : method.MethodHandle;
         }
 
-        static public void Prepare(this MethodInfo method)
+        static public void Prepare(this MethodBase method)
         {
             RuntimeHelpers.PrepareMethod(method.Handle());
         }
 
-        static public string Declaration(this MethodInfo method)
+        static public string Declaration(this MethodBase method)
         {
             if (method.IsGenericMethod)
             {
@@ -189,24 +189,35 @@ namespace System.Reflection
             return string.Concat(method.Name, "(", string.Join(", ", method.GetParameters().Select(__ParameterInfo.Declaration)), ")");
         }
 
-        static public IntPtr Pointer(this MethodInfo method)
+        static public IntPtr Pointer(this MethodBase method)
         {
             return method.Handle().GetFunctionPointer();
         }
 
-        static public Signature Signature(this MethodInfo method)
+        static public Signature Signature(this MethodBase method)
         {
             if (method.IsStatic) { return new Signature(method.GetParameters().Select(_Parameter => _Parameter.ParameterType)); }
             return new Signature(method.DeclaringType, method.GetParameters().Select(_Parameter => _Parameter.ParameterType));
         }
 
-        static public PropertyInfo Property(this MethodInfo method)
+        static public PropertyInfo Property(this MethodBase method)
         {
+            if (method is ConstructorInfo) { return null; }
             foreach (var _property in method.DeclaringType.Properties())
             {
                 if (method == _property.GetGetMethod(true) || method == _property.GetSetMethod(true)) { return _property; }
             }
             return null;
+        }
+
+        static public MethodBase GetBaseDefinition(this MethodBase method)
+        {
+            return method is MethodInfo ? (method as MethodInfo).GetBaseDefinition() : method;
+        }
+
+        static public Type Type(this MethodBase method)
+        {
+            return method is MethodInfo ? (method as MethodInfo).ReturnType : Metadata.Void;
         }
     }
 }

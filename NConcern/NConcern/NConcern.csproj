@@ -88,12 +88,12 @@
     <Compile Include="System\Reflection\Emit\__BinaryReader.cs" />
     <Compile Include="System\Reflection\Emit\__ILGenerator.cs" />
     <Compile Include="System\Reflection\Emit\__Label.cs" />
+    <Compile Include="System\Reflection\__MethodBase.cs" />
     <Compile Include="System\Reflection\Emit\__ModuleBuilder.cs" />
     <Compile Include="System\Reflection\Instruction.cs" />
     <Compile Include="System\Reflection\Metadata.cs" />
     <Compile Include="System\Reflection\Signature.cs" />
     <Compile Include="System\Reflection\__AssemblyName.cs" />
-    <Compile Include="System\Reflection\__MethodInfo.cs" />
     <Compile Include="System\Reflection\__ParameterInfo.cs" />
     <Compile Include="System\Reflection\__Type.cs" />
     <Compile Include="System\Resource.cs" />

@@ -59,7 +59,7 @@ namespace NConcern.Debug
     public class ResourceTechnicalAspect<T> : IAspect
         where T : IDisposable, new()
     {
-        public IEnumerable<IAdvice> Advise(MethodInfo method)
+        public IEnumerable<IAdvice> Advise(MethodBase method)
         {
             yield return Advice.Basic.Around(_Body =>
             {

@@ -22,12 +22,12 @@ namespace NConcern
             {
                 var _signature = _Method.Signature();
                 if (advice == null) { return _Method; }
-                var _type = _Method.ReturnType;
+                var _type = _Method.Type();
                 var _method = new DynamicMethod(string.Empty, _type, _signature, _Method.DeclaringType, true);
                 var _body = _method.GetILGenerator();
                 _body.Emit(OpCodes.Call, Expression.Lambda(advice).CompileToMethod());
                 _body.Emit(_signature, false);
-                _body.Emit(_Pointer, _Method.ReturnType, _signature);
+                _body.Emit(_Pointer, _type, _signature);
                 _body.Emit(OpCodes.Ret);
                 _method.Prepare();
                 return _method;
@@ -48,13 +48,13 @@ namespace NConcern
                 var _parameters = new Collection<ParameterExpression>(_signature.Select(_Type => Expression.Parameter(_Type)).ToArray());
                 var _advice = _signature.Instance == null ? advice(null, _parameters) : advice(_parameters[0], _parameters.Skip(1));
                 if (_advice == null) { return _Method; }
-                var _type = _Method.ReturnType;
+                var _type = _Method.Type();
                 var _method = new DynamicMethod(string.Empty, _type, _signature, _Method.DeclaringType, true);
                 var _body = _method.GetILGenerator();
                 _body.Emit(_signature, false);
                 _body.Emit(OpCodes.Call, Expression.Lambda(_advice, _parameters).CompileToMethod());
                 _body.Emit(_signature, false);
-                _body.Emit(_Pointer, _Method.ReturnType, _signature);
+                _body.Emit(_Pointer, _type, _signature);
                 _body.Emit(OpCodes.Ret);
                 _method.Prepare();
                 return _method;

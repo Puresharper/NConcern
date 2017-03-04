@@ -16,12 +16,12 @@ namespace NConcern
         {
             return new Advice((_Method, _Pointer) =>
             {
-                var _type = _Method.ReturnType;
+                var _type = _Method.Type();
                 var _signature = _Method.Signature();
                 var _method = new DynamicMethod(string.Empty, _type, _signature, _Method.DeclaringType, true);
                 var _body = _method.GetILGenerator();
                 _body.Emit(_signature, false);
-                _body.Emit(_Pointer, _Method.ReturnType, _signature);
+                _body.Emit(_Pointer, _type, _signature);
                 if (advice.Target != null) { _body.Emit(OpCodes.Ldsfld, Advisor.Module.DefineField(advice.Target)); }
                 _body.Emit(OpCodes.Call, advice.Method);
                 _body.Emit(OpCodes.Ret);
@@ -41,11 +41,11 @@ namespace NConcern
             return new Advice((_Method, _Pointer) =>
             {
                 var _signature = _Method.Signature();
-                var _type = _Method.ReturnType;
+                var _type = _Method.Type();
                 var _method = new DynamicMethod(string.Empty, _type, _signature, _Method.DeclaringType, true);
                 var _body = _method.GetILGenerator();
                 _body.Emit(_signature, false);
-                _body.Emit(_Pointer, _Method.ReturnType, _signature);
+                _body.Emit(_Pointer, _type, _signature);
                 if (advice.Target != null) { _body.Emit(OpCodes.Ldsfld, Advisor.Module.DefineField(advice.Target)); }
                 _body.Emit(_signature, true);
                 _body.Emit(OpCodes.Call, advice.Method);
@@ -66,12 +66,12 @@ namespace NConcern
             return new Advice((_Method, _Pointer) =>
             {
                 var _signature = _Method.Signature();
-                var _type = _Method.ReturnType;
+                var _type = _Method.Type();
                 var _method = new DynamicMethod(string.Empty, _type, _signature, _Method.DeclaringType, true);
                 var _body = _method.GetILGenerator();
                 _body.DeclareLocal(Metadata<object>.Type);
                 _body.Emit(_signature, false);
-                _body.Emit(_Pointer, _Method.ReturnType, _signature);
+                _body.Emit(_Pointer, _type, _signature);
                 if (_type == Metadata.Void) { _body.Emit(OpCodes.Ldnull); }
                 else
                 {

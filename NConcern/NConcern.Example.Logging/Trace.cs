@@ -8,7 +8,7 @@ namespace NConcern.Example.Logging
     {
         private Stopwatch m_Stopwatch;
         
-        public Trace(MethodInfo method, string[] arguments)
+        public Trace(MethodBase method, string[] arguments)
         {
             this.m_Stopwatch = new Stopwatch();
             Console.WriteLine("[{0}] >>> {1}.{2}({3})", DateTime.Now, method.DeclaringType.Name, method.Name, string.Join(", ", arguments));
