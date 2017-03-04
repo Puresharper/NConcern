@@ -18,6 +18,16 @@ namespace NConcern.Debug
         {
             return await Task.Run(() => this.Add(a, b));
         }
+
+        public int AddFailed(int a, int b)
+        {
+            throw new InvalidOperationException("bug");
+        }
+
+        public async Task<int> AddFailedAsync(int a, int b)
+        {
+            return await Task.Run(() => this.AddFailed(a, b));
+        }
     }
 
     public class Resource1 : IDisposable
@@ -68,6 +78,9 @@ namespace NConcern.Debug
             Aspect.Weave<ResourceTechnicalAspect<Resource1>>(Metadata<Calculator>.Method(_Calculator => _Calculator.Add(Argument<int>.Value, Argument<int>.Value)));
             Aspect.Weave<ResourceTechnicalAspect<Resource2>>(Metadata<Calculator>.Method(_Calculator => _Calculator.AddAsync(Argument<int>.Value, Argument<int>.Value)));
 
+            Aspect.Weave<ResourceTechnicalAspect<Resource1>>(Metadata<Calculator>.Method(_Calculator => _Calculator.AddFailed(Argument<int>.Value, Argument<int>.Value)));
+            Aspect.Weave<ResourceTechnicalAspect<Resource2>>(Metadata<Calculator>.Method(_Calculator => _Calculator.AddFailedAsync(Argument<int>.Value, Argument<int>.Value)));
+
             //Create calculator.
             var _calculator = new Calculator();
 
@@ -76,6 +89,24 @@ namespace NConcern.Debug
 
             //Call async method.
             int result1 = _calculator.AddAsync(2, 3).Result;
+
+            //Call synchronous method.
+            try
+            {
+                var _result2 = _calculator.AddFailed(2, 3);
+            }
+            catch (Exception e)
+            {
+            }
+
+            //Call async method.
+            try
+            {
+                int result3 = _calculator.AddFailedAsync(2, 3).Result;
+            }
+            catch (Exception e)
+            {
+            }
         }
     }
 }
