@@ -88,7 +88,7 @@ namespace NConcern.Debug
             var _result = _calculator.Add(2, 3);
 
             //Call async method.
-            int result1 = _calculator.AddAsync(2, 3).Result;
+            int _result1 = _calculator.AddAsync(2, 3).Result;
 
             //Call synchronous method.
             try
@@ -102,7 +102,7 @@ namespace NConcern.Debug
             //Call async method.
             try
             {
-                int result3 = _calculator.AddFailedAsync(2, 3).Result;
+                int _result3 = _calculator.AddFailedAsync(2, 3).Result;
             }
             catch (Exception e)
             {
