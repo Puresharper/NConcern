@@ -1,0 +1,7 @@
+D:\Github\Virtuoze\NConcern\NConcern\NConcern\NConcern.Performance\bin\Release\NConcern.Performance.exe
+D:\Github\Virtuoze\NConcern\NConcern\NConcern\NConcern.Performance\bin\Release\NConcern.Performance.pdb
+D:\Github\Virtuoze\NConcern\NConcern\NConcern\NConcern.Performance\bin\Release\NConcern.dll
+D:\Github\Virtuoze\NConcern\NConcern\NConcern\NConcern.Performance\bin\Release\NConcern.pdb
+D:\Github\Virtuoze\NConcern\NConcern\NConcern\NConcern.Performance\obj\Release\NConcern.Performance.csprojResolveAssemblyReference.cache
+D:\Github\Virtuoze\NConcern\NConcern\NConcern\NConcern.Performance\obj\Release\NConcern.Performance.exe
+D:\Github\Virtuoze\NConcern\NConcern\NConcern\NConcern.Performance\obj\Release\NConcern.Performance.pdb
