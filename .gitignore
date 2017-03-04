@@ -3,3 +3,12 @@
 ################################################################################
 
 /NConcern/NConcern.Debug/bin/Debug
+/NConcern/NConcern/bin/Debug
+/NConcern/NConcern/obj/Debug
+/NConcern/.vs/NConcern/v14
+/NConcern/NConcern.Debug/obj/Debug
+/NConcern/NConcern.Example.Basic/obj/Debug
+/NConcern/NConcern.Example.Linq/obj/Debug
+/NConcern/NConcern.Example.Reflection/obj/Debug
+/NConcern/NConcern.Example.Observation/obj/Debug
+/NConcern/NConcern.Qualification/obj/Debug
