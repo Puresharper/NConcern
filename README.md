@@ -98,12 +98,12 @@ Aspect.Release<Logging>(typeof(OperationContractAttribute));
 _Most of time developping cross-cutting source code required reflection and boxing to be done. NConcern offer a way to define it using Linq Expressions or ILGenerator because cross-cutting source code have to manage not statically known datas. No need factory and no need base class is the second exclusive feature that make the difference because interception is not based on method overriding, MarshalByRef nor ContextBoundObject._
 
 - **How fast is "low performance overhead"?** 
-_For real there is no overhead when Linq Expressions or ILGenerator are used. Basic advice introduce a light overhead caused by boxing and arguments array creation. However, MethofInfo is not prepared if capture is not required in lambda expression._
+_For real there is no overhead when Linq Expressions or ILGenerator are used. Basic advice introduce a light overhead caused by boxing and arguments array creation. However, MethodInfo is not prepared if capture is not required in lambda expression._
 
 - **Why I have to use DebuggableAttribute?** 
-_Interception is based on method swaping and cannot be applied when JIT or compiler optimize a call by inlining. The DebuggableAttribute is an acceptable way to disable inlining without being to much intrusive. You are free to do it by another way but keep in mind that only non virtual methods can be inlined._
+_Interception is based on method swaping and cannot be applied when JIT or compiler optimize a call by inlining. The DebuggableAttribute is an acceptable way to disable inlining without being to much intrusive. You are free to do it by another way (MethodImplAttribute for example) but keep in mind that only non virtual methods can be inlined._
 
-- **Can I add multiple aspect for same taget? if yes how can I control priority?** 
+- **Can I add multiple aspect for same target? if yes how can I control priority?** 
 _Yes you can. Priority is defined by the order of weaving. It can be reorganized by calling Aspect.Release(...)/Aspect.Weave(...) and you can check the whole aspects mapping by calling Aspect.Lookup(...)._
 
 - **Is an attribute required to identify a mehod to weave?** 
