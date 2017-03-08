@@ -55,6 +55,12 @@ namespace NConcern
                                 }
                                 else { _dictionary.Add(_method, new Entry(type, _method, new IntPtr((int*)_method.Handle().Value.ToPointer() + 2), new Aspect.Activity(type, _method))); }
                             }
+                            foreach (var _constructor in type.Constructors())
+                            {
+                                if (_constructor.IsStatic) { continue; }
+                                if (_constructor.GetParameters().Length == 0) { _dictionary.Add(_constructor, new Entry(type, _constructor, new IntPtr((int*)_constructor.Handle().Value.ToPointer() + 8), new Aspect.Activity(type, _constructor))); }
+                                else { _dictionary.Add(_constructor, new Entry(type, _constructor, new IntPtr((int*)_constructor.Handle().Value.ToPointer() + 2), new Aspect.Activity(type, _constructor))); }
+                            }
                             break;
                         }
                     case 8:
@@ -80,6 +86,12 @@ namespace NConcern
                                         }
                                     }
                                     else { _dictionary.Add(_method, new Entry(type, _method, new IntPtr((long*)_method.Handle().Value.ToPointer() + 1), new Aspect.Activity(type, _method))); }
+                                }
+                                foreach (var _constructor in type.Constructors())
+                                {
+                                    if (_constructor.IsStatic) { continue; }
+                                    if (_constructor.GetParameters().Length == 0) { _dictionary.Add(_constructor, new Entry(type, _constructor, new IntPtr((long*)_constructor.Handle().Value.ToPointer() + 6), new Aspect.Activity(type, _constructor))); }
+                                    else { _dictionary.Add(_constructor, new Entry(type, _constructor, new IntPtr((long*)_constructor.Handle().Value.ToPointer() + 1), new Aspect.Activity(type, _constructor))); }
                                 }
                                 break;
                             }

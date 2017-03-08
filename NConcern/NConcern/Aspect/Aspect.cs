@@ -79,7 +79,7 @@ namespace NConcern
         /// </summary>
         /// <param name="method">Method</param>
         /// <returns>Enumerable of aspects woven in the method</returns>
-        static public IEnumerable<Type> Enumerate(MethodInfo method)
+        static public IEnumerable<Type> Enumerate(MethodBase method)
         {
             lock (Aspect.m_Resource)
             {
@@ -92,7 +92,7 @@ namespace NConcern
         /// </summary>
         /// <typeparam name="T">Aspect</typeparam>
         /// <param name="method">Method</param>
-        static public void Weave<T>(MethodInfo method)
+        static public void Weave<T>(MethodBase method)
             where T : class, IAspect, new()
         {
             lock (Aspect.m_Resource)
@@ -114,13 +114,16 @@ namespace NConcern
                 foreach (var _type in Aspect.Explore().SelectMany(Aspect.Explore))
                 {
                     if (_type.ContainsGenericParameters) { continue; }
+                    foreach (var _constructor in _type.GetConstructors())
+                    {
+                        if (_constructor.IsStatic) { continue; }
+                        if (_constructor.IsAbstract) { continue; }
+                        if (pattern(_constructor)) { Aspect.Directory.Add<T>(_constructor); }
+                    }
                     foreach (var _method in _type.Methods())
                     {
                         if (_method.IsAbstract) { continue; }
-                        if (pattern(_method))
-                        {
-                            Aspect.Directory.Add<T>(_method);
-                        }
+                        if (pattern(_method)) { Aspect.Directory.Add<T>(_method); }
                     }
                 }
             }

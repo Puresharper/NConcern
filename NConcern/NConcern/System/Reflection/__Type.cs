@@ -11,6 +11,7 @@ namespace System.Reflection
     static internal class __Type
     {
         static private Resource m_Resource = new Resource();
+        static private Dictionary<Type, IEnumerable<ConstructorInfo>> m_Constructors = new Dictionary<Type, IEnumerable<ConstructorInfo>>();
         static private Dictionary<Type, IEnumerable<MethodInfo>> m_Methods = new Dictionary<Type, IEnumerable<MethodInfo>>();
         static private Dictionary<Type, IEnumerable<PropertyInfo>> m_Properties = new Dictionary<Type, IEnumerable<PropertyInfo>>();
 
@@ -26,6 +27,18 @@ namespace System.Reflection
                 return string.Concat(type.FullName.Remove(type.FullName.IndexOf('`')), "<", string.Join(", ", type.GetGenericArguments().Select(__Type.Declaration)), ">");
             }
             return type.FullName;
+        }
+
+        static public IEnumerable<ConstructorInfo> Constructors(this Type type)
+        {
+            IEnumerable<ConstructorInfo> _constructors;
+            lock (__Type.m_Resource)
+            {
+                if (__Type.m_Constructors.TryGetValue(type, out _constructors)) { return _constructors; }
+                _constructors = new Collection<ConstructorInfo>(type.GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.DeclaredOnly));
+                __Type.m_Constructors.Add(type, _constructors);
+                return _constructors;
+            }
         }
 
         static public IEnumerable<MethodInfo> Methods(this Type type)

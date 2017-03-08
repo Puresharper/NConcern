@@ -19,13 +19,13 @@ namespace NConcern
 
                 private readonly IntPtr m_Pointer;
                 public readonly Type Type;
-                public readonly MethodInfo Method;
+                public readonly MethodBase Method;
                 public readonly Activity Activity;
                 private readonly LinkedList<IAspect> m_Aspectization;
                 private readonly Dictionary<IAspect, Activity> m_Dictionary;
                 private readonly Action<IntPtr> m_Setup;
 
-                unsafe internal Entry(Type type, MethodInfo method, IntPtr pointer, Activity activity)
+                unsafe internal Entry(Type type, MethodBase method, IntPtr pointer, Activity activity)
                 {
                     method.Prepare();
                     this.Type = type;
@@ -35,7 +35,6 @@ namespace NConcern
                     this.m_Aspectization = new LinkedList<IAspect>();
                     this.m_Dictionary = new Dictionary<IAspect, Activity>();
                     if (method.IsVirtual) { return; }
-
                     var _type = Entry.m_Module.DefineType(string.Concat(Metadata<Delegate>.Type.Name, Guid.NewGuid().ToString("N")), TypeAttributes.Public | TypeAttributes.Class | TypeAttributes.Sealed | TypeAttributes.Abstract);
                     switch (IntPtr.Size)
                     {
@@ -45,7 +44,7 @@ namespace NConcern
                     }
                     var _field = _type.CreateType().GetFields(BindingFlags.Static | BindingFlags.Public).Single();
                     var _signature = this.Method.Signature();
-                    var _method = new DynamicMethod(method.Name, this.Method.ReturnType, _signature, this.Method.DeclaringType, true);
+                    var _method = new DynamicMethod(method.Name, method.Type(), _signature, this.Method.DeclaringType, true);
                     var _body = _method.GetILGenerator();
                     for (var _index = 0; _index < _signature.Length; _index++)
                     {
@@ -61,7 +60,7 @@ namespace NConcern
                     _body.Emit(OpCodes.Ldsflda, _field);
                     _body.Emit(OpCodes.Volatile);
                     _body.Emit(OpCodes.Ldobj, _field.FieldType);
-                    _body.EmitCalli(OpCodes.Calli, CallingConventions.Standard, method.ReturnType, _signature, null);
+                    _body.EmitCalli(OpCodes.Calli, CallingConventions.Standard, method.Type(), _signature, null);
                     _body.Emit(OpCodes.Ret);
                     _method.Prepare();
                     switch (IntPtr.Size)
