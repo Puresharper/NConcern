@@ -13,7 +13,7 @@ NConcern AOP Framework is based on code injection at runtime.
 - no installer : single .net library (.dll) to reference
 - suited for unit testing : weaving is controlled at runtime
 - low performance overhead : injection mechanic is built to be efficient
-- limitless : everything except generic methods is supported (coming with next release)
+- limitless : everything (constructors included) except generic methods is supported (coming with next release)
 - runtime lifecycle : aspect can be updated/created/removed at runtime
 
 
