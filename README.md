@@ -61,7 +61,7 @@ public class Calculator
 ```
 static public class Tracer
 {
-    static public void Trace(MethodInfo method, object[] arguments)
+    static public void Trace(MethodBase method, object[] arguments)
     {
         Console.WriteLine("{0}({1})", method.Name, string.Join(", ", arguments));
     }
@@ -72,7 +72,7 @@ static public class Tracer
 ```
 public class Logging : IAspect
 {
-    public IEnumerable<IAdvice> Advise(MethodInfo method)
+    public IEnumerable<IAdvice> Advise(MethodBase method)
     {
         yield return Advice.Basic.Before((instance, arguments) => 
         {
