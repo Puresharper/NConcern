@@ -23,7 +23,6 @@ namespace NConcern.Example.Reflection
                     _ILGenerator.Emit(OpCodes.Ldtoken, method);
                     _ILGenerator.Emit(OpCodes.Ldtoken, method.ReflectedType);
                     _ILGenerator.Emit(OpCodes.Call, Metadata.Method(() => MethodBase.GetMethodFromHandle(Argument<RuntimeMethodHandle>.Value, Argument<RuntimeTypeHandle>.Value)));
-                    //_ILGenerator.Emit(OpCodes.Castclass, Metadata<MethodInfo>.Type);
                     _ILGenerator.Emit(OpCodes.Ldc_I4, _parameters.Length);
                     _ILGenerator.Emit(OpCodes.Newarr, Metadata<string>.Type);
                     for (var _index = 0; _index < _parameters.Length; _index++)
@@ -63,7 +62,6 @@ namespace NConcern.Example.Reflection
                     _ILGenerator.Emit(OpCodes.Ldtoken, method);
                     _ILGenerator.Emit(OpCodes.Ldtoken, method.ReflectedType);
                     _ILGenerator.Emit(OpCodes.Call, Metadata.Method(() => MethodBase.GetMethodFromHandle(Argument<RuntimeMethodHandle>.Value, Argument<RuntimeTypeHandle>.Value)));
-                    //_ILGenerator.Emit(OpCodes.Castclass, Metadata<MethodInfo>.Type);
                     _ILGenerator.Emit(OpCodes.Ldc_I4, _parameters.Length);
                     _ILGenerator.Emit(OpCodes.Newarr, Metadata<string>.Type);
                     for (var _index = 0; _index < _parameters.Length; _index++)

@@ -294,7 +294,7 @@ namespace NConcern
         /// Release an aspect from methods defined as [type] or defined in [type].
         /// </summary>
         /// <typeparam name="T">Aspect</typeparam>
-        /// <param name="type">Custom attribute type/param>
+        /// <param name="type">Custom attribute type</param>
         static public void Release<T>(Type type)
             where T : class, IAspect, new()
         {

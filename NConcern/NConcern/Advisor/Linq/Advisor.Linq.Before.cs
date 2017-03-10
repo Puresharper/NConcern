@@ -38,7 +38,7 @@ namespace NConcern
         /// Create an advice that runs before the advised method.
         /// </summary>
         /// <param name="linq">Linq</param>
-        /// <param name="advice">Delegate used to produce an expression of code to be invoked before the advised method : Func(Expression = [expression of target instance of advised method call], IEnumerable<Expression> = [enumerable of expression of argument used to call advised method]) return an expression(void) of code to invoke before the advised method</param>
+        /// <param name="advice">Delegate used to produce an expression of code to be invoked before the advised method : Func(Expression = [expression of target instance of advised method call], IEnumerable(Expression) = [enumerable of expression of argument used to call advised method]) return an expression(void) of code to invoke before the advised method</param>
         /// <returns>Advice</returns>
         static public IAdvice Before(this Advisor.ILinq linq, Func<Expression, IEnumerable<Expression>, Expression> advice)
         {

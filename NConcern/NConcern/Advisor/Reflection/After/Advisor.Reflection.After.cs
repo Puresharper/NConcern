@@ -8,18 +8,36 @@ namespace NConcern
 {
     static public partial class Advisor
     {
+        /// <summary>
+        /// Reflection.
+        /// </summary>
         public partial class Reflection
         {
+            /// <summary>
+            /// Create an advice that runs after the advised method.
+            /// </summary>
             public interface IAfter
             {
+                /// <summary>
+                /// GetHashCode.
+                /// </summary>
+                /// <returns>HashCode</returns>
                 [DebuggerHidden]
                 [EditorBrowsable(EditorBrowsableState.Never)]
                 int GetHashCode();
 
+                /// <summary>
+                /// ToString.
+                /// </summary>
+                /// <returns>String</returns>
                 [DebuggerHidden]
                 [EditorBrowsable(EditorBrowsableState.Never)]
                 string ToString();
 
+                /// <summary>
+                /// GetType.
+                /// </summary>
+                /// <returns>Type</returns>
                 [DebuggerHidden]
                 [EditorBrowsable(EditorBrowsableState.Never)]
                 Type GetType();

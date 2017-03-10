@@ -6,13 +6,31 @@ using System.Reflection.Emit;
 
 namespace System.Reflection
 {
+    /// <summary>
+    /// CIL Instruction.
+    /// </summary>
     [DebuggerDisplay("{this.ToString(), nq}")]
     public class Instruction
     {
+        /// <summary>
+        /// Code.
+        /// </summary>
         public readonly OpCode Code;
+
+        /// <summary>
+        /// Type.
+        /// </summary>
         public readonly Type Type;
+
+        /// <summary>
+        /// Value.
+        /// </summary>
         public readonly object Value;
 
+        /// <summary>
+        /// Create an instruction without value.
+        /// </summary>
+        /// <param name="code"></param>
         public Instruction(OpCode code)
         {
             this.Code = code;
@@ -32,6 +50,10 @@ namespace System.Reflection
             body.Emit(this.Code);
         }
 
+        /// <summary>
+        /// Instruction illustration.
+        /// </summary>
+        /// <returns></returns>
         override public string ToString()
         {
             if (this.Type == null) {return this.Code.ToString(); }
@@ -41,6 +63,10 @@ namespace System.Reflection
         }
     }
 
+    /// <summary>
+    /// Instruction
+    /// </summary>
+    /// <typeparam name="T">Type</typeparam>
     public sealed class Instruction<T> : Instruction
     {
         static private class Initialization
@@ -69,8 +95,16 @@ namespace System.Reflection
 
         static private readonly Action<ILGenerator, Instruction> m_Push = Initialization.Push();
 
+        /// <summary>
+        /// Value.
+        /// </summary>
         new public readonly T Value;
 
+        /// <summary>
+        /// Create an instruction.
+        /// </summary>
+        /// <param name="code">Code</param>
+        /// <param name="value">Value</param>
         public Instruction(OpCode code, T value)
             : base(code, Metadata<T>.Type, value)
         {

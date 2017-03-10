@@ -39,7 +39,7 @@ namespace NConcern
         /// Create an advice that runs after the advised method only if it completes successfully.
         /// </summary>
         /// <param name="linq">Linq</param>
-        /// <param name="advice">Delegate used to produce an expression of code to be invoked after the advised method : Func(Expression = [expression of target instance of advised method call], IEnumerable<Expression> = [enumerable of expression of argument used to call advised method]) return an expression(void) of code to invoke after the advised method</param>
+        /// <param name="advice">Delegate used to produce an expression of code to be invoked after the advised method : Func(Expression = [expression of target instance of advised method call], IEnumerable(Expression) = [enumerable of expression of argument used to call advised method]) return an expression(void) of code to invoke after the advised method</param>
         /// <returns>Advice</returns>
         static public IAdvice Returning(this Advisor.Linq.IAfter linq, Func<Expression, IEnumerable<Expression>, Expression> advice)
         {
@@ -67,7 +67,7 @@ namespace NConcern
         /// Create an advice that runs after the advised method only if it completes successfully.
         /// </summary>
         /// <param name="linq">Linq</param>
-        /// <param name="advice">Delegate used to produce an expression of code to be invoked after the advised method : Func(Expression = [expression of target instance of advised method call], IEnumerable<Expression> = [enumerable of expression of argument used to call advised method], Expression = [expression of return value (null if return type is void)]) return an expression(void) of code to invoke after the advised method</param>
+        /// <param name="advice">Delegate used to produce an expression of code to be invoked after the advised method : Func(Expression = [expression of target instance of advised method call], IEnumerable(Expression) = [enumerable of expression of argument used to call advised method], Expression = [expression of return value (null if return type is void)]) return an expression(void) of code to invoke after the advised method</param>
         /// <returns>Advice</returns>
         static public IAdvice Returning(this Advisor.Linq.IAfter linq, Func<Expression, IEnumerable<Expression>, Expression, Expression> advice)
         {

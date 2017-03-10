@@ -7,23 +7,32 @@ using System.Reflection.Emit;
 
 namespace NConcern
 {
+    /// <summary>
+    /// Advice.
+    /// </summary>
     public sealed class Advice : IAdvice
     {
         /// <summary>
-        /// Basic
+        /// Basic.
         /// </summary>
         static public readonly Advisor.IBasic Basic = null;
 
         /// <summary>
-        /// Linq
+        /// Linq.
         /// </summary>
         static public readonly Advisor.ILinq Linq = null;
 
         /// <summary>
-        /// Reflection
+        /// Reflection.
         /// </summary>
         static public readonly Advisor.IReflection Reflection = null;
 
+        /// <summary>
+        /// Equals.
+        /// </summary>
+        /// <param name="left">Left</param>
+        /// <param name="right">Right</param>
+        /// <returns>Equals</returns>
         [DebuggerHidden]
         [Browsable(false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -32,6 +41,12 @@ namespace NConcern
             return object.Equals(left, right);
         }
 
+        /// <summary>
+        /// ReferenceEquals.
+        /// </summary>
+        /// <param name="left">Left</param>
+        /// <param name="right">Right</param>
+        /// <returns>Equals</returns>
         [DebuggerHidden]
         [Browsable(false)]
         [EditorBrowsable(EditorBrowsableState.Never)]

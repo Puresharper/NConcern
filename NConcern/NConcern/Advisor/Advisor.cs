@@ -6,12 +6,21 @@ using System.Reflection.Emit;
 
 namespace NConcern
 {
+    /// <summary>
+    /// Advisor.
+    /// </summary>
     [Browsable(false)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     static public partial class Advisor
     {
         static internal readonly ModuleBuilder Module = AppDomain.CurrentDomain.DefineDynamicModule();
 
+        /// <summary>
+        /// Equals.
+        /// </summary>
+        /// <param name="left">Left</param>
+        /// <param name="right">Right</param>
+        /// <returns>Equals</returns>
         [DebuggerHidden]
         [Browsable(false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -20,6 +29,12 @@ namespace NConcern
             return object.Equals(left, right);
         }
 
+        /// <summary>
+        /// ReferenceEquals.
+        /// </summary>
+        /// <param name="left">Left</param>
+        /// <param name="right">Right</param>
+        /// <returns>Equals</returns>
         [DebuggerHidden]
         [Browsable(false)]
         [EditorBrowsable(EditorBrowsableState.Never)]

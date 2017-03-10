@@ -97,6 +97,7 @@ namespace NConcern.Debug
             }
             catch (Exception e)
             {
+                Console.WriteLine(e.Message);
             }
 
             //Call async method.
@@ -106,6 +107,7 @@ namespace NConcern.Debug
             }
             catch (Exception e)
             {
+                Console.WriteLine(e.Message);
             }
         }
     }
