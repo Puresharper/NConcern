@@ -2,21 +2,6 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/NConcern/NConcern.Debug/bin/Debug
-/NConcern/NConcern/bin/Debug
-/NConcern/NConcern/obj/Debug
-/NConcern/.vs/NConcern/v14
-/NConcern/NConcern.Debug/obj/Debug
-/NConcern/NConcern.Example.Basic/obj/Debug
-/NConcern/NConcern.Example.Linq/obj/Debug
-/NConcern/NConcern.Example.Reflection/obj/Debug
-/NConcern/NConcern.Example.Observation/obj/Debug
-/NConcern/NConcern.Qualification/obj/Debug
-/NConcern/NConcern.Example/bin/Debug
-/NConcern/NConcern.Example/obj/Debug
-/NConcern/NConcern.Example.Basic/bin/Debug
-/NConcern/NConcern.Example.Linq/bin/Debug
-/NConcern/NConcern.Example.Logging/bin/Debug
-/NConcern/NConcern.Example.Logging/obj/Debug
-/NConcern/NConcern.Example.Observation/bin/Debug
-/NConcern/NConcern.Qualification/bin/Debug
+.vs
+bin
+obj
