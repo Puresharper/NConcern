@@ -61,7 +61,7 @@ public class Calculator
 ```
 static public class Tracer
 {
-    static public void Trace(MethodInfo method, object[] arguments)
+    static public void Trace(MethodBase method, object[] arguments)
     {
         Console.WriteLine("{0}({1})", method.Name, string.Join(", ", arguments));
     }
@@ -72,7 +72,7 @@ static public class Tracer
 ```
 public class Logging : IAspect
 {
-    public IEnumerable<IAdvice> Advise(MethodInfo method)
+    public IEnumerable<IAdvice> Advise(MethodBase method)
     {
         yield return Advice.Basic.Before((instance, arguments) => 
         {
@@ -103,11 +103,14 @@ _For real there is no overhead when Linq Expressions or ILGenerator are used. Ba
 - **Why I have to use DebuggableAttribute?** 
 _Interception is based on method swaping and cannot be applied when JIT or compiler optimize a call by inlining. The DebuggableAttribute is an acceptable way to disable inlining without being to much intrusive. You are free to do it by another way (MethodImplAttribute for example) but keep in mind that only non virtual methods can be inlined._
 
-- **Can I add multiple aspect for same target? if yes how can I control priority?** 
+- **Can I add multiple aspect for same target? If yes how can I control priority?** 
 _Yes you can. Priority is defined by the order of weaving. It can be reorganized by calling Aspect.Release(...)/Aspect.Weave(...) and you can check the whole aspects mapping by calling Aspect.Lookup(...)._
 
 - **Is an attribute required to identify a mehod to weave?** 
 _No you can identify a method by the way you want. There is a Aspect.Weave(...) overload that take a Func<MethodInfo, bool> to select methods._
+
+- **Can I intercept constructor? If yes, how do I implement it?**
+_Constructor interception is supported and is treated like another method with declaring type as first argument and void for return type._
 
 ## More
 - https://www.nuget.org/packages/NConcern/
