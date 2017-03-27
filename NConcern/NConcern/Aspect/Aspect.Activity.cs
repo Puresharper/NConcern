@@ -12,40 +12,20 @@ namespace NConcern
             public readonly Type Type;
             public readonly MethodBase Method;
             public readonly Signature Signature;
-            internal readonly MethodBase Implementation;
-            internal readonly IntPtr Pointer;
+            internal readonly Func<MethodInfo, MethodInfo> Update;
 
             public Activity(Type type, MethodBase method)
-                : this(null, type, method, method.Signature(), method)
+                : this(null, type, method, method.Signature(), _Method => _Method)
             {
             }
 
-            public Activity(Activity authority, Type type, MethodBase method, Signature signature, MethodBase implementation)
+            public Activity(Activity authority, Type type, MethodBase method, Signature signature, Func<MethodInfo, MethodInfo> update)
             {
                 this.Authority = authority;
                 this.Type = type;
                 this.Method = method;
                 this.Signature = signature;
-                this.Implementation = implementation;
-                this.Pointer = implementation.Pointer();
-            }
-
-            private Activity(Activity authority, MethodBase method)
-                : this(authority, authority.Type, authority.Method, authority.Signature, method)
-            {
-            }
-
-            public Activity Incorporate(IAspect aspect)
-            {
-                var _advising = aspect.Advise(this.Method);
-                if (_advising == null) { return this; }
-                var _activity = this;
-                foreach (var _advice in _advising.Reverse())
-                {
-                    if (_advice == null) { continue; }
-                    _activity = new Activity(_activity, _advice.Decorate(_activity.Method, _activity.Pointer));
-                }
-                return _activity;
+                this.Update = update;
             }
         }
     }

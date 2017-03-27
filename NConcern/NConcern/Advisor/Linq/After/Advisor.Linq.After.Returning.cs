@@ -21,7 +21,7 @@ namespace NConcern
             return new Advice((_Method, _Pointer) =>
             {
                 var _signature = _Method.Signature();
-                if (advice == null) { return _Method; }
+                if (advice == null) { return null; }
                 if (advice.Type != Metadata.Void) { throw new NotSupportedException(); }
                 var _type = _Method.Type();
                 var _method = new DynamicMethod(string.Empty, _type, _signature, _Method.DeclaringType, true);
@@ -48,7 +48,7 @@ namespace NConcern
                 var _signature = _Method.Signature();
                 var _parameters = _signature.Select(_Type => Expression.Parameter(_Type)).ToArray();
                 var _advice = _signature.Instance == null ? advice(null, _parameters) : advice(_parameters[0], _parameters.Skip(1));
-                if (_advice == null) { return _Method; }
+                if (_advice == null) { return null; }
                 if (_advice.Type != Metadata.Void) { throw new NotSupportedException(); }
                 var _type = _Method.Type();
                 var _method = new DynamicMethod(string.Empty, _type, _signature, _Method.DeclaringType, true);
@@ -79,7 +79,7 @@ namespace NConcern
                 if (_type == Metadata.Void)
                 {
                     var _advice = _signature.Instance == null ? advice(null, _parameters, null) : advice(_parameters[0], _parameters.Skip(1), null);
-                    if (_advice == null) { return _Method; }
+                    if (_advice == null) { return null; }
                     if (_advice.Type != Metadata.Void) { throw new NotSupportedException(); }
                     var _method = new DynamicMethod(string.Empty, _type, _signature, _Method.DeclaringType, true);
                     var _body = _method.GetILGenerator();
@@ -95,7 +95,7 @@ namespace NConcern
                 {
                     var _return = Expression.Parameter(_type);
                     var _advice = _signature.Instance == null ? advice(null, _parameters, _return) : advice(_parameters[0], _parameters.Skip(1), _return);
-                    if (_advice == null) { return _Method; }
+                    if (_advice == null) { return null; }
                     if (_advice.Type != Metadata.Void) { throw new NotSupportedException(); }
                     var _method = new DynamicMethod(string.Empty, _type, _signature, _Method.DeclaringType, true);
                     var _body = _method.GetILGenerator();

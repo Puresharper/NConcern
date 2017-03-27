@@ -30,74 +30,8 @@ namespace NConcern
             unsafe static private void Populate(Type type)
             {
                 var _dictionary = Aspect.Directory.m_Dictionary;
-                switch (IntPtr.Size)
-                {
-                    case 4:
-                        {
-                            var _address = (int*)(type.TypeHandle.Value.ToInt32() + 0x28);
-                            _address = (int*)(*_address);
-                            foreach (var _method in type.Methods())
-                            {
-                                _method.Prepare();
-                                if (_method.IsVirtual)
-                                {
-                                    var _pointer = _method.Pointer().ToInt32();
-                                    var _index = 0;
-                                    while (true)
-                                    {
-                                        if (*(_address + _index) == _pointer)
-                                        {
-                                            _dictionary.Add(_method, new Entry(type, _method, new IntPtr(_address + _index), new Aspect.Activity(type, _method)));
-                                            break;
-                                        }
-                                        _index++;
-                                    }
-                                }
-                                else { _dictionary.Add(_method, new Entry(type, _method, new IntPtr((int*)_method.Handle().Value.ToPointer() + 2), new Aspect.Activity(type, _method))); }
-                            }
-                            foreach (var _constructor in type.Constructors())
-                            {
-                                if (_constructor.IsStatic) { continue; }
-                                if (_constructor.GetParameters().Length == 0) { _dictionary.Add(_constructor, new Entry(type, _constructor, new IntPtr((int*)_constructor.Handle().Value.ToPointer() + 8), new Aspect.Activity(type, _constructor))); }
-                                else { _dictionary.Add(_constructor, new Entry(type, _constructor, new IntPtr((int*)_constructor.Handle().Value.ToPointer() + 2), new Aspect.Activity(type, _constructor))); }
-                            }
-                            break;
-                        }
-                    case 8:
-                        {
-                            {
-                                var _address = (long*)(type.TypeHandle.Value.ToInt64() + 0x40);
-                                _address = (long*)(*_address);
-                                foreach (var _method in type.Methods())
-                                {
-                                    _method.Prepare();
-                                    if (_method.IsVirtual)
-                                    {
-                                        var _pointer = _method.Pointer().ToInt64();
-                                        var _index = 0;
-                                        while (true)
-                                        {
-                                            if (*(_address + _index) == _pointer)
-                                            {
-                                                _dictionary.Add(_method, new Entry(type, _method, new IntPtr(_address + _index), new Aspect.Activity(type, _method)));
-                                                break;
-                                            }
-                                            _index++;
-                                        }
-                                    }
-                                    else { _dictionary.Add(_method, new Entry(type, _method, new IntPtr((long*)_method.Handle().Value.ToPointer() + 1), new Aspect.Activity(type, _method))); }
-                                }
-                                foreach (var _constructor in type.Constructors())
-                                {
-                                    if (_constructor.IsStatic) { continue; }
-                                    if (_constructor.GetParameters().Length == 0) { _dictionary.Add(_constructor, new Entry(type, _constructor, new IntPtr((long*)_constructor.Handle().Value.ToPointer() + 6), new Aspect.Activity(type, _constructor))); }
-                                    else { _dictionary.Add(_constructor, new Entry(type, _constructor, new IntPtr((long*)_constructor.Handle().Value.ToPointer() + 1), new Aspect.Activity(type, _constructor))); }
-                                }
-                                break;
-                            }
-                        }
-                    default: throw new NotSupportedException();
-                }
+                foreach (var _method in type.Methods()) { _dictionary.Add(_method, new Entry(type, _method, new Aspect.Activity(type, _method))); }
+                foreach (var _constructor in type.Constructors()) { _dictionary.Add(_constructor, new Entry(type, _constructor, new Aspect.Activity(type, _constructor))); }
             }
 
             static public IEnumerable<MethodBase> Index()
