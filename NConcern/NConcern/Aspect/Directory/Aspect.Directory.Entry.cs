@@ -30,7 +30,9 @@ namespace NConcern
                     this.Activity = activity;
                     this.m_Aspectization = new LinkedList<IAspect>();
                     this.m_Dictionary = new Dictionary<IAspect, Activity>();
-                    this.m_Update = type.GetNestedType("<Neptune>", BindingFlags.NonPublic).GetField("<Update>").GetValue(null) as Action<MethodBase, Func<MethodInfo, MethodInfo>>;
+                    var _type = type.GetNestedType("<Neptune>", BindingFlags.NonPublic);
+                    if (_type == null) { throw new NotSupportedException(string.Format("type '{0}' is not managed by CNeptune and cannot be supervised.", type.AssemblyQualifiedName)); }
+                    this.m_Update = _type.GetField("<Update>").GetValue(null) as Action<MethodBase, Func<MethodInfo, MethodInfo>>;
                 }
 
                 private void Update()
