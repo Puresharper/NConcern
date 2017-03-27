@@ -28,24 +28,7 @@ namespace NConcern
         static private IEnumerable<Type> Explore()
         {
             var _domain = AppDomain.CurrentDomain.GetAssemblies();
-            return _domain.Where(Aspect.Compatible).SelectMany(Aspect.Explore);
-        }
-
-        static private bool Compatible(Assembly assembly)
-        {
-            var _debuggable = assembly.GetCustomAttributes(Metadata<DebuggableAttribute>.Type, true).SingleOrDefault() as DebuggableAttribute;
-            if (_debuggable == null) { return false; }
-            return _debuggable.IsJITOptimizerDisabled && _debuggable.IsJITTrackingEnabled;
-        }
-
-        static private bool Compatible(Type type)
-        {
-            return Aspect.Compatible(type.Assembly);
-        }
-
-        static private bool Compatible(MethodBase method)
-        {
-            return Aspect.Compatible(method.DeclaringType);
+            return _domain.SelectMany(Aspect.Explore);
         }
 
         /// <summary>
