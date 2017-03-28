@@ -52,9 +52,8 @@ public class Calculator
 }
 ```
 
-- Install CNeptune Urbanization .NET nuget package on target assembly (where WCF is defined) to make it injectable
+- Install [CNeptune Urbanization .NET](https://www.nuget.org/packages/CNeptune/) nuget package on target assembly (where WCF is defined) to make it injectable
 ```
-https://www.nuget.org/packages/CNeptune/
 PM> Install-Package CNeptune
 ```
 
@@ -69,9 +68,8 @@ static public class Tracer
 }
 ```
 
-- Install NConcern AOP Framework nuget package on assembly where Aspects will be defined
+- Install [NConcern .NET AOP Framework](https://www.nuget.org/packages/NConcern/) nuget package on assembly where Aspects will be defined
 ```
-https://www.nuget.org/packages/NConcern/
 PM> Install-Package NConcern
 ```
 
