@@ -23,15 +23,9 @@ namespace NConcern
                 }
                 Aspect.Directory.Entry _entry;
                 if (Aspect.Directory.m_Dictionary.TryGetValue(method, out _entry)) { return _entry; }
-                Aspect.Directory.Populate(method.ReflectedType);
-                return Aspect.Directory.m_Dictionary[method];
-            }
-
-            unsafe static private void Populate(Type type)
-            {
-                var _dictionary = Aspect.Directory.m_Dictionary;
-                foreach (var _method in type.Methods()) { _dictionary.Add(_method, new Entry(type, _method, new Aspect.Activity(type, _method))); }
-                foreach (var _constructor in type.Constructors()) { _dictionary.Add(_constructor, new Entry(type, _constructor, new Aspect.Activity(type, _constructor))); }
+                _entry = new Aspect.Directory.Entry(_method.DeclaringType, _method, new Aspect.Activity(_method.DeclaringType, _method));
+                Aspect.Directory.m_Dictionary.Add(_method, _entry);
+                return _entry;
             }
 
             static public IEnumerable<MethodBase> Index()
