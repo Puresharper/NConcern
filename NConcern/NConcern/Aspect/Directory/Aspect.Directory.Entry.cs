@@ -43,6 +43,7 @@ namespace NConcern
                 public readonly MethodBase Method;
                 public readonly Activity Activity;
                 private readonly LinkedList<IAspect> m_Aspectization;
+                private readonly LinkedList<MethodInfo> m_Sequence;
                 private readonly Dictionary<IAspect, Activity> m_Dictionary;
                 private readonly IntPtr m_Pointer;
                 private readonly FieldInfo m_Field;
@@ -58,16 +59,19 @@ namespace NConcern
                     if (_type == null) { throw new NotSupportedException(string.Format("type '{0}' is not managed by CNeptune and cannot be supervised.", type.AssemblyQualifiedName)); }
                     this.m_Field = Pointer(method);
                     this.m_Pointer = (IntPtr)this.m_Field.GetValue(null);
+                    this.m_Sequence = new LinkedList<MethodInfo>();
                 }
 
                 private void Update()
                 {
                     var _aspectization = this.m_Aspectization.SelectMany(_Aspect => _Aspect.Advise(this.Method)).ToArray();
                     var _pointer = this.m_Pointer;
+                    this.m_Sequence.Clear();
                     foreach (var _advice in _aspectization)
                     {
                         if (_advice == null) { continue; }
                         var _method = _advice.Decorate(this.Method, _pointer);
+                        this.m_Sequence.AddLast(_method);
                         if (_method != null) { _pointer = _method.Pointer(); }
                     }
                     this.m_Field.SetValue(null, _pointer);
