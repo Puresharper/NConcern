@@ -20,7 +20,8 @@ namespace NConcern.Example.Reflection
                 {
                     var _exception = _ILGenerator.DeclareLocal(Metadata<Exception>.Type);
                     var _trace = _ILGenerator.DeclareLocal(Metadata<Trace>.Type);
-                    _ILGenerator.Emit(OpCodes.Ldtoken, method);
+                    if (method is ConstructorInfo) { _ILGenerator.Emit(OpCodes.Ldtoken, method as ConstructorInfo); }
+                    else { _ILGenerator.Emit(OpCodes.Ldtoken, method as MethodInfo); }
                     _ILGenerator.Emit(OpCodes.Ldtoken, method.ReflectedType);
                     _ILGenerator.Emit(OpCodes.Call, Metadata.Method(() => MethodBase.GetMethodFromHandle(Argument<RuntimeMethodHandle>.Value, Argument<RuntimeTypeHandle>.Value)));
                     _ILGenerator.Emit(OpCodes.Ldc_I4, _parameters.Length);
@@ -59,7 +60,8 @@ namespace NConcern.Example.Reflection
                     var _exception = _ILGenerator.DeclareLocal(Metadata<Exception>.Type);
                     var _trace = _ILGenerator.DeclareLocal(Metadata<Trace>.Type);
                     var _return = _ILGenerator.DeclareLocal(_type);
-                    _ILGenerator.Emit(OpCodes.Ldtoken, method);
+                    if (method is ConstructorInfo) { _ILGenerator.Emit(OpCodes.Ldtoken, method as ConstructorInfo); }
+                    else { _ILGenerator.Emit(OpCodes.Ldtoken, method as MethodInfo); }
                     _ILGenerator.Emit(OpCodes.Ldtoken, method.ReflectedType);
                     _ILGenerator.Emit(OpCodes.Call, Metadata.Method(() => MethodBase.GetMethodFromHandle(Argument<RuntimeMethodHandle>.Value, Argument<RuntimeTypeHandle>.Value)));
                     _ILGenerator.Emit(OpCodes.Ldc_I4, _parameters.Length);
