@@ -31,12 +31,15 @@ namespace NConcern
 
                 static private FieldInfo Pointer(MethodBase method)
                 {
-                    if (method.IsGenericMethod)
+                    foreach (var _instruction in method.Body())
                     {
-                        var _method = (method as MethodInfo).GetGenericMethodDefinition();
-                        return Type.GetType(string.Concat(_method.DeclaringType.FullName, "+<Neptune>+") + Identity(_method) + ", " + _method.DeclaringType.Assembly.FullName).MakeGenericType(method.GetGenericArguments()).GetField("<Pointer>");
+                        if (_instruction.Code == OpCodes.Ldsfld)
+                        {
+                            var _field = _instruction.Value as FieldInfo;
+                            if (_field.Name == "<Pointer>") { return _field; }
+                        }
                     }
-                    return Type.GetType(string.Concat(method.DeclaringType.FullName, "+<Neptune>+") + Identity(method) + ", " + method.DeclaringType.Assembly.FullName).GetField("<Pointer>");
+                    throw new NotSupportedException(string.Format($"type '{ method.DeclaringType.AssemblyQualifiedName }' is not managed by CNeptune and cannot be supervised."));
                 }
 
                 public readonly Type Type;
@@ -55,9 +58,7 @@ namespace NConcern
                     this.Activity = activity;
                     this.m_Aspectization = new LinkedList<IAspect>();
                     this.m_Dictionary = new Dictionary<IAspect, Activity>();
-                    var _type = type.GetNestedType("<Neptune>", BindingFlags.NonPublic);
-                    if (_type == null) { throw new NotSupportedException(string.Format("type '{0}' is not managed by CNeptune and cannot be supervised.", type.AssemblyQualifiedName)); }
-                    this.m_Field = Pointer(method);
+                    this.m_Field = Aspect.Directory.Entry.Pointer(method);
                     this.m_Pointer = (IntPtr)this.m_Field.GetValue(null);
                     this.m_Sequence = new LinkedList<MethodInfo>();
                 }
