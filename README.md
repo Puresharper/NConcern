@@ -1,3 +1,4 @@
+[![NuGet](https://img.shields.io/nuget/v/nconcern.svg)](https://www.nuget.org/packages/NConcern)
 # NConcern .NET AOP Framework
 NConcern is a .NET runtime AOP (Aspect-Oriented Programming) lightweight framework written in C# that reduces tangling caused by cross-cutting concerns. Its role is to introduce Aspect-Oriented Programming paradigm with a minimum cost to maximize quality and productivity.
 
