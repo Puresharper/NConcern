@@ -12,10 +12,12 @@ namespace NConcern
     /// </summary>
     static public partial class Aspect
     {
+        static private string m_Token = BitConverter.ToString(typeof(object).Assembly.GetName().GetPublicKeyToken()).Replace("-", string.Empty);
         static private readonly Resource m_Resource = new Resource();
 
         static private IEnumerable<Type> Explore(Assembly assembly)
         {
+            if (string.Equals(BitConverter.ToString(assembly.GetName().GetPublicKeyToken()).Replace("-", string.Empty), Aspect.m_Token, StringComparison.InvariantCultureIgnoreCase)) { return Enumerable.Empty<Type>(); }
             return assembly.GetTypes().SelectMany(Aspect.Explore);
         }
 
