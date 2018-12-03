@@ -1,4 +1,4 @@
-# **Important : Issue has been disabled because NConcern has been redesigned, improved and made reliable through the [Puresharp](https://github.com/Virtuoze/Puresharp) project**
+# **Important : Issues has been disabled because NConcern has been redesigned, improved and made reliable through the [Puresharp](https://github.com/Virtuoze/Puresharp) project.**
 
 
 [![NuGet](https://img.shields.io/nuget/v/nconcern.svg)](https://www.nuget.org/packages/NConcern)
